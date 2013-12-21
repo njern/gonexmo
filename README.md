@@ -1,11 +1,11 @@
 # go-nexmo
 
-go-nexmo is a [Go](http://golang.org/) library specifically for sending SMS's with [Nexmo](https://www.nexmo.com/). You can also check your balance and in the future I may add support for the rest of their API (check prices before sending messages, etc)
+go-nexmo is a [Go](http://golang.org/) library tailored for sending SMS's with [Nexmo](https://www.nexmo.com/). You can also check your balance and in the future I may add support for the rest of their API (check prices before sending messages, etc)
 
 
 ## Installation
 
-Assuming you have a working Go environment, installation is simply:
+Assuming you have a working Go environment, installation is simple:
 
     go get github.com/njern/gonexmo
 
@@ -15,7 +15,7 @@ You can take a look at the documentation locally with:
 
 The included tests in `gonexmo_test.go` also illustrate usage of the package.
 
-**Note:** You must enter valid API credentials and a valid phone number in `gonexmo_test.go` or the tests will fail!
+**Note:** You must enter valid API credentials and a valid phone number in `gonexmo_test.go` or the tests will fail! I didn't feel like draining my own Nexmo account or receiving thousands of test SMS's - sorry :)
 
 
 ## Usage
@@ -30,3 +30,12 @@ The included tests in `gonexmo_test.go` also illustrate usage of the package.
     // See https://docs.nexmo.com/index.php/sms-api/send-message for details.
     messageResponse, err := nexmo.SendTextMessage("go-nexmo", "00358123412345", "Looks like go-nexmo works great, we should definitely buy that njern guy a beer!", "001", false)
 
+## Future plans
+
+* Implement the rest of the Nexmo API
+* Release a few more Go libraries - once I clean them up :)
+
+## How can you help?
+
+* Let me know if you're using gonexmo by dropping me a line at [github user name] at walkbase.com
+* Let me know about any bugs / annoyances the same way
