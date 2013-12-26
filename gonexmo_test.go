@@ -1,4 +1,4 @@
-package gonexmo
+package nexmo
 
 import (
 	"testing"
