@@ -6,19 +6,18 @@ your API key and API secret. Then send messages with SendTextMessage() or
 SendFlashMessage(). The API will return a MessageResponse which you can
 use to see if your message went through, how much it cost, etc.
 */
-package gonexmo
+package nexmo
 
 import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 )
 
-// MessageReport is the "status report" for a single SMS sent via the Nexmo API
+// MessageReport is the "status report" for a single SMS sent via the Nexmo API.
 type MessageReport struct {
 	Status           string `json:"status"`
 	MessageID        string `json:"message-id"`
@@ -30,37 +29,41 @@ type MessageReport struct {
 	ErrorText        string `json:"error-text"`
 }
 
-// MessageResponse contains the response from Nexmo's API after we attempt to send any kind of message.
+// MessageResponse contains the response from Nexmo's API after we attempt to
+// send any kind of message.
 // It will contain one MessageReport for every 160 chars sent.
 type MessageResponse struct {
 	MessageCount string          `json:"message-count"`
 	Messages     []MessageReport `json:"messages"`
 }
 
-// AccountBalance represents the "balance" object we get back when calling GET /account/get-balance
+// AccountBalance represents the "balance" object we get back when calling
+// GET /account/get-balance.
 type AccountBalance struct {
 	Value float64 `json:"value"`
 }
 
-// Nexmo encapsulates the Nexmo functions - must be created with NexmoWithKeyAndSecret()
-type Nexmo struct {
+// Nexmo encapsulates the Nexmo functions - must be created with NewConn().
+type Conn struct {
 	apiKey    string
 	apiSecret string
 }
 
-// NexmoWithKeyAndSecret creates a Nexmo object with the provided API key / API secret.
-func NexmoWithKeyAndSecret(apiKey, apiSecret string) (*Nexmo, error) {
+// NewConn creates a Nexmo object with the provided API key / API secret.
+func NewConn(apiKey, apiSecret string) (*Conn, error) {
 	if apiKey == "" {
 		return nil, errors.New("apiKey can not be empty!")
 	} else if apiSecret == "" {
 		return nil, errors.New("apiSecret can not be empty!")
 	}
 
-	nexmo := &Nexmo{apiKey, apiSecret}
+	nexmo := &Conn{apiKey, apiSecret}
 	return nexmo, nil
 }
 
-func (nexmo *Nexmo) sendMessage(from string, to string, text string, clientReference string, statusReportRequired bool, is_flash_message bool) (*MessageResponse, error) {
+func (nexmo *Conn) sendMessage(from string, to string, text string,
+	clientReference string, statusReportRequired bool, is_flash_message bool) (
+	*MessageResponse, error) {
 	var messageResponse *MessageResponse
 
 	values := make(url.Values)
@@ -82,7 +85,8 @@ func (nexmo *Nexmo) sendMessage(from string, to string, text string, clientRefer
 	}
 
 	client := &http.Client{}
-	r, _ := http.NewRequest("POST", "https://rest.nexmo.com/sms/json", bytes.NewBufferString(values.Encode())) // <-- URL-encoded payload
+	r, _ := http.NewRequest("POST", "https://rest.nexmo.com/sms/json",
+		bytes.NewBufferString(values.Encode())) // <-- URL-encoded payload
 	r.Header.Add("Accept", "application/json")
 	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	// r.Header.Add("Content-Length", strconv.Itoa(len(data.Encode())))
@@ -105,21 +109,27 @@ func (nexmo *Nexmo) sendMessage(from string, to string, text string, clientRefer
 }
 
 // SendTextMessage() sends a normal SMS
-func (nexmo *Nexmo) SendTextMessage(from, to, text, clientReference string, statusReportRequired bool) (*MessageResponse, error) {
-	return nexmo.sendMessage(from, to, text, clientReference, statusReportRequired, false)
+func (nexmo *Conn) SendTextMessage(from, to, text, clientReference string,
+	statusReportRequired bool) (*MessageResponse, error) {
+	return nexmo.sendMessage(from, to, text, clientReference,
+		statusReportRequired, false)
 }
 
 // SendFlashMessage() sends a class 0 SMS (Flash message).
-func (nexmo *Nexmo) SendFlashMessage(from, to, text, clientReference string, statusReportRequired bool) (*MessageResponse, error) {
-	return nexmo.sendMessage(from, to, text, clientReference, statusReportRequired, true)
+func (nexmo *Conn) SendFlashMessage(from, to, text, clientReference string,
+	statusReportRequired bool) (*MessageResponse, error) {
+	return nexmo.sendMessage(from, to, text, clientReference,
+		statusReportRequired, true)
 }
 
 // GetBalance() retrieves the current balance of your Nexmo account in Euros (€)
-func (nexmo *Nexmo) GetBalance() (float64, error) {
+func (nexmo *Conn) GetBalance() (float64, error) {
 	var accBalance *AccountBalance
 
 	client := &http.Client{}
-	r, _ := http.NewRequest("GET", "https://rest.nexmo.com/account/get-balance/"+nexmo.apiKey+"/"+nexmo.apiSecret, nil)
+	r, _ := http.NewRequest("GET",
+		"https://rest.nexmo.com/account/get-balance/"+nexmo.apiKey+"/"+
+			nexmo.apiSecret, nil)
 	r.Header.Add("Accept", "application/json")
 
 	resp, err := client.Do(r)
