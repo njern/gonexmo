@@ -6,13 +6,12 @@ your API key and API secret. Then send messages with SendTextMessage() or
 SendFlashMessage(). The API will return a MessageResponse which you can
 use to see if your message went through, how much it cost, etc.
 */
-package gonexmo
+package nexmo
 
 import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
