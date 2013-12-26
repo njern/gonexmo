@@ -1,24 +1,44 @@
 package nexmo
 
 import (
+	"fmt"
+	"os"
 	"testing"
 )
 
-const (
-	API_KEY           = "YOUR NEXMO API KEY GOES HERE"
-	API_SECRET        = "YOUR NEXMO API SECRET GOES HERE"
-	TEST_PHONE_NUMBER = "YOUR PHONE NUMBER GOES HERE"
+var (
+	API_KEY, API_SECRET, TEST_PHONE_NUMBER string
 )
 
+func init() {
+	API_KEY = os.Getenv("NEXMO_KEY")
+	if API_KEY == "" {
+		fmt.Println("No API key specified. Please set NEXMO_KEY")
+		os.Exit(1)
+	}
+
+	API_SECRET = os.Getenv("NEXMO_SECRET")
+	if API_SECRET == "" {
+		fmt.Println("No API secret specified. Please set NEXMO_SECRET")
+		os.Exit(1)
+	}
+
+	TEST_PHONE_NUMBER = os.Getenv("NEXMO_NUM")
+	if TEST_PHONE_NUMBER == "" {
+		fmt.Println("No test phone number specified. Please set NEXMO_NUM")
+		os.Exit(1)
+	}
+}
+
 func TestNexmoCreation(t *testing.T) {
-	_, err := NexmoWithKeyAndSecret(API_KEY, API_SECRET)
+	_, err := NewConn(API_KEY, API_SECRET)
 	if err != nil {
 		t.Error("Failed to create Nexmo object with error:", err)
 	}
 }
 
 func TestGetAccountBalance(t *testing.T) {
-	nexmo, err := NexmoWithKeyAndSecret(API_KEY, API_SECRET)
+	nexmo, err := NewConn(API_KEY, API_SECRET)
 	if err != nil {
 		t.Error("Failed to create Nexmo object with error:", err)
 	}
@@ -32,7 +52,7 @@ func TestGetAccountBalance(t *testing.T) {
 }
 
 func TestSendTextMessage(t *testing.T) {
-	nexmo, err := NexmoWithKeyAndSecret(API_KEY, API_SECRET)
+	nexmo, err := NewConn(API_KEY, API_SECRET)
 	if err != nil {
 		t.Error("Failed to create Nexmo object with error:", err)
 	}
@@ -46,7 +66,7 @@ func TestSendTextMessage(t *testing.T) {
 }
 
 func TestFlashMessage(t *testing.T) {
-	nexmo, err := NexmoWithKeyAndSecret(API_KEY, API_SECRET)
+	nexmo, err := NewConn(API_KEY, API_SECRET)
 	if err != nil {
 		t.Error("Failed to create Nexmo object with error:", err)
 	}
