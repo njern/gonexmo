@@ -17,6 +17,10 @@ import (
 	"net/url"
 )
 
+const (
+	apiRoot = "https://rest.nexmo.com"
+)
+
 // MessageReport is the "status report" for a single SMS sent via the Nexmo API
 type MessageReport struct {
 	Status           string `json:"status"`
@@ -86,7 +90,7 @@ func (nexmo *Nexmo) sendMessage(from, to, text, clientReference string,
 	}
 
 	client := &http.Client{}
-	r, _ := http.NewRequest("POST", "https://rest.nexmo.com/sms/json",
+	r, _ := http.NewRequest("POST", apiRoot+"/sms/json",
 		bytes.NewReader([]byte(values.Encode())))
 	r.Header.Add("Accept", "application/json")
 	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -127,9 +131,8 @@ func (nexmo *Nexmo) GetBalance() (float64, error) {
 	var accBalance *AccountBalance
 
 	client := &http.Client{}
-	r, _ := http.NewRequest("GET",
-		"https://rest.nexmo.com/account/get-balance/"+nexmo.apiKey+"/"+
-			nexmo.apiSecret, nil)
+	r, _ := http.NewRequest("GET", apiRoot+"/account/get-balance/"+
+		nexmo.apiKey+"/"+nexmo.apiSecret, nil)
 	r.Header.Add("Accept", "application/json")
 
 	resp, err := client.Do(r)
