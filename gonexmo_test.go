@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	API_KEY, API_SECRET, TEST_PHONE_NUMBER string
+	API_KEY, API_SECRET, TEST_PHONE_NUMBER, TEST_FROM string
 )
 
 func init() {
@@ -24,6 +24,14 @@ func init() {
 	}
 
 	TEST_PHONE_NUMBER = os.Getenv("NEXMO_NUM")
+
+	// Set a custom from value, or use the default. If you get error 15 when
+	// sending a message ("Illegal Sender Address - rejected") try setting this
+	// to your nexmo phone number.
+	TEST_FROM = os.Getenv("NEXMO_FROM")
+	if TEST_FROM == "" {
+		TEST_FROM = "gonexmo"
+	}
 }
 
 func TestNexmoCreation(t *testing.T) {
