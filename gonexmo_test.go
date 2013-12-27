@@ -57,7 +57,9 @@ func TestSendTextMessage(t *testing.T) {
 		t.Error("Failed to create Nexmo object with error:", err)
 	}
 
-	messageResponse, err := nexmo.SendTextMessage("go-nexmo", "00358123412345", "Looks like go-nexmo works great, we should definitely buy that njern guy a beer!", "001", false)
+	messageResponse, err := nexmo.SendTextMessage("go-nexmo", "00358123412345",
+		"Looks like go-nexmo works great,"+
+			" we should definitely buy that njern guy a beer!", "001", false)
 	if err != nil {
 		t.Error("Failed to send text message with error:", err)
 	}
@@ -71,7 +73,9 @@ func TestFlashMessage(t *testing.T) {
 		t.Error("Failed to create Nexmo object with error:", err)
 	}
 
-	messageResponse, err := nexmo.SendFlashMessage("go-nexmo", "00358123412345", "Looks like go-nexmo works great, we should definitely buy that njern guy a beer!", "001", false)
+	messageResponse, err := nexmo.SendFlashMessage("go-nexmo", "00358123412345",
+		"Looks like go-nexmo works great,"+
+			" we should definitely buy that njern guy a beer!", "001", false)
 	if err != nil {
 		t.Error("Failed to send flash message (class 0 SMS) with error:", err)
 	}
