@@ -31,14 +31,14 @@ func init() {
 }
 
 func TestNexmoCreation(t *testing.T) {
-	_, err := NexmoWithKeyAndSecret(API_KEY, API_SECRET)
+	_, err := New(API_KEY, API_SECRET)
 	if err != nil {
 		t.Error("Failed to create Nexmo object with error:", err)
 	}
 }
 
 func TestGetAccountBalance(t *testing.T) {
-	nexmo, err := NexmoWithKeyAndSecret(API_KEY, API_SECRET)
+	nexmo, err := New(API_KEY, API_SECRET)
 	if err != nil {
 		t.Error("Failed to create Nexmo object with error:", err)
 	}
@@ -52,7 +52,7 @@ func TestGetAccountBalance(t *testing.T) {
 }
 
 func TestSendTextMessage(t *testing.T) {
-	nexmo, err := NexmoWithKeyAndSecret(API_KEY, API_SECRET)
+	nexmo, err := New(API_KEY, API_SECRET)
 	if err != nil {
 		t.Error("Failed to create Nexmo object with error:", err)
 	}
@@ -68,7 +68,7 @@ func TestSendTextMessage(t *testing.T) {
 }
 
 func TestFlashMessage(t *testing.T) {
-	nexmo, err := NexmoWithKeyAndSecret(API_KEY, API_SECRET)
+	nexmo, err := New(API_KEY, API_SECRET)
 	if err != nil {
 		t.Error("Failed to create Nexmo object with error:", err)
 	}

@@ -52,7 +52,7 @@ type Nexmo struct {
 
 // NexmoWithKeyAndSecret creates a Nexmo object with the provided API key / API
 // secret.
-func NexmoWithKeyAndSecret(apiKey, apiSecret string) (*Nexmo, error) {
+func New(apiKey, apiSecret string) (*Nexmo, error) {
 	if apiKey == "" {
 		return nil, errors.New("apiKey can not be empty!")
 	} else if apiSecret == "" {
@@ -87,7 +87,7 @@ func (nexmo *Nexmo) sendMessage(from, to, text, clientReference string,
 
 	client := &http.Client{}
 	r, _ := http.NewRequest("POST", "https://rest.nexmo.com/sms/json",
-		bytes.NewBufferString(values.Encode())) // <-- URL-encoded payload
+		bytes.NewReader([]byte(values.Encode())))
 	r.Header.Add("Accept", "application/json")
 	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
