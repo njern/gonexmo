@@ -5,6 +5,7 @@
 package nexmo
 
 import (
+	"strconv"
 	"testing"
 	"time"
 )
@@ -22,8 +23,8 @@ func TestSendTextMessage(t *testing.T) {
 	}
 
 	messageResponse, err := nexmo.SendTextMessage(TEST_FROM, TEST_PHONE_NUMBER,
-		"Looks like go-nexmo works great,"+
-			" we should definitely buy that njern guy a beer!", "001", false)
+		"Gonexmo test text message, sent at "+time.Now().String(),
+		"gonexmo-test "+strconv.FormatInt(time.Now().Unix(), 10), false)
 	if err != nil {
 		t.Error("Failed to send text message with error:", err)
 	}
@@ -42,8 +43,8 @@ func TestFlashMessage(t *testing.T) {
 	}
 
 	messageResponse, err := nexmo.SendFlashMessage(TEST_FROM, TEST_PHONE_NUMBER,
-		"Looks like go-nexmo works great,"+
-			" we should definitely buy that njern guy a beer!", "001", false)
+		"Gonexmo test flash  message, sent at "+time.Now().String(),
+		"gonexmo-test "+strconv.FormatInt(time.Now().Unix(), 10), false)
 	if err != nil {
 		t.Error("Failed to send flash message (class 0 SMS) with error:", err)
 	}
