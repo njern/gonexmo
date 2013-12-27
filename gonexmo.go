@@ -63,9 +63,8 @@ func NexmoWithKeyAndSecret(apiKey, apiSecret string) (*Nexmo, error) {
 	return nexmo, nil
 }
 
-func (nexmo *Nexmo) sendMessage(from string, to string, text string,
-	clientReference string, statusReportRequired bool, is_flash_message bool) (
-	*MessageResponse, error) {
+func (nexmo *Nexmo) sendMessage(from, to, text, clientReference string,
+	statusReportRequired bool, isFlashMessage bool) (*MessageResponse, error) {
 	var messageResponse *MessageResponse
 
 	values := make(url.Values)
@@ -82,7 +81,7 @@ func (nexmo *Nexmo) sendMessage(from string, to string, text string,
 		values.Set("status_report_req", string(1))
 
 	}
-	if is_flash_message {
+	if isFlashMessage {
 		values.Set("message_class", "0")
 	}
 
