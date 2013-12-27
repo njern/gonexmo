@@ -10,6 +10,8 @@ import (
 )
 
 func TestSendTextMessage(t *testing.T) {
+	// TODO(inhies): Create an internal rate limiting system and do away with
+	// this hacky 1 second delay.
 	time.Sleep(1 * time.Second) // Sleep 1 second due to API limitation
 	if TEST_PHONE_NUMBER == "" {
 		t.Fatal("No test phone number specified. Please set NEXMO_NUM")
