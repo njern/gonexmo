@@ -69,6 +69,9 @@ func New(apiKey, apiSecret string) (*Nexmo, error) {
 
 func (nexmo *Nexmo) sendMessage(from, to, text, clientReference string,
 	statusReportRequired bool, isFlashMessage bool) (*MessageResponse, error) {
+	if len(clientReference) > 40 {
+		return nil, errors.New("Client reference too long")
+	}
 	var messageResponse *MessageResponse
 
 	values := make(url.Values)
