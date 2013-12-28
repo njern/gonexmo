@@ -41,12 +41,6 @@ type MessageResponse struct {
 	Messages     []MessageReport `json:"messages"`
 }
 
-// AccountBalance represents the "balance" object we get back when calling
-// GET /account/get-balance
-type AccountBalance struct {
-	Value float64 `json:"value"`
-}
-
 // Nexmo encapsulates the Nexmo functions - must be created with
 // NexmoWithKeyAndSecret()
 type Client struct {
@@ -131,6 +125,11 @@ func (nexmo *Client) SendFlashMessage(from, to, text, clientReference string,
 
 // GetBalance() retrieves the current balance of your Nexmo account in Euros (€)
 func (nexmo *Client) GetBalance() (float64, error) {
+	// Declare this locally, since we are only going to return a float64.
+	type AccountBalance struct {
+		Value float64 `json:"value"`
+	}
+
 	var accBalance *AccountBalance
 
 	client := &http.Client{}
