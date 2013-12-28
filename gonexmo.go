@@ -41,26 +41,6 @@ type MessageResponse struct {
 	Messages     []MessageReport `json:"messages"`
 }
 
-// Nexmo encapsulates the Nexmo functions - must be created with
-// NexmoWithKeyAndSecret()
-type Client struct {
-	apiKey    string
-	apiSecret string
-	useOauth  bool
-}
-
-// NexmoWithKeyAndSecret creates a Nexmo object with the provided API key / API
-// secret.
-func NewClientFromAPI(apiKey, apiSecret string) (*Client, error) {
-	if apiKey == "" {
-		return nil, errors.New("apiKey can not be empty!")
-	} else if apiSecret == "" {
-		return nil, errors.New("apiSecret can not be empty!")
-	}
-
-	return &Client{apiKey, apiSecret, false}, nil
-}
-
 func (nexmo *Client) sendMessage(from, to, text, clientReference string,
 	statusReportRequired bool, isFlashMessage bool) (*MessageResponse, error) {
 	if len(clientReference) > 40 {
@@ -121,35 +101,4 @@ func (nexmo *Client) SendFlashMessage(from, to, text, clientReference string,
 	statusReportRequired bool) (*MessageResponse, error) {
 	return nexmo.sendMessage(from, to, text, clientReference,
 		statusReportRequired, true)
-}
-
-// GetBalance() retrieves the current balance of your Nexmo account in Euros (€)
-func (nexmo *Client) GetBalance() (float64, error) {
-	// Declare this locally, since we are only going to return a float64.
-	type AccountBalance struct {
-		Value float64 `json:"value"`
-	}
-
-	var accBalance *AccountBalance
-
-	client := &http.Client{}
-	r, _ := http.NewRequest("GET", apiRoot+"/account/get-balance/"+
-		nexmo.apiKey+"/"+nexmo.apiSecret, nil)
-	r.Header.Add("Accept", "application/json")
-
-	resp, err := client.Do(r)
-	defer resp.Body.Close()
-
-	if err != nil {
-		return 0.0, err
-	}
-
-	body, _ := ioutil.ReadAll(resp.Body)
-
-	err = json.Unmarshal(body, &accBalance)
-	if err != nil {
-		return 0.0, err
-	} else {
-		return accBalance.Value, nil
-	}
 }

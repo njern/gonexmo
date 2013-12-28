@@ -47,7 +47,9 @@ func TestGetAccountBalance(t *testing.T) {
 		t.Error("Failed to create Nexmo object with error:", err)
 	}
 
-	balance, err := nexmo.GetBalance()
+	acct := NewAccountFromClient(nexmo)
+
+	balance, err := acct.GetBalance()
 	if err != nil {
 		t.Error("Failed to get account balance with error:", err)
 	}
