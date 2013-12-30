@@ -10,6 +10,46 @@ import (
 	"time"
 )
 
+func TestUssdPushMessage(t *testing.T) {
+	time.Sleep(1 * time.Second) // Sleep 1 second due to API limitation
+	if TEST_PHONE_NUMBER == "" {
+		t.Fatal("No test phone number specified. Please set NEXMO_NUM")
+	}
+	nexmo, err := NewClientFromAPI(API_KEY, API_SECRET)
+	if err != nil {
+		t.Error("Failed to create Nexmo object with error:", err)
+	}
+
+	messageResponse, err := nexmo.SendUssdPush(TEST_FROM, TEST_PHONE_NUMBER,
+		"Gonexmo test USSD push message, sent at "+time.Now().String(),
+		"gonexmo-test "+strconv.FormatInt(time.Now().Unix(), 10), false)
+	if err != nil {
+		t.Error("Failed to send USSD push message with error:", err)
+	}
+
+	t.Logf("Sent USSD push, response was: %#v\n", messageResponse)
+}
+
+func TestUssdPromptMessage(t *testing.T) {
+	time.Sleep(1 * time.Second) // Sleep 1 second due to API limitation
+	if TEST_PHONE_NUMBER == "" {
+		t.Fatal("No test phone number specified. Please set NEXMO_NUM")
+	}
+	nexmo, err := NewClientFromAPI(API_KEY, API_SECRET)
+	if err != nil {
+		t.Error("Failed to create Nexmo object with error:", err)
+	}
+
+	messageResponse, err := nexmo.SendUssdPrompt(TEST_FROM, TEST_PHONE_NUMBER,
+		"Gonexmo test USSD prompt message, sent at "+time.Now().String(),
+		"gonexmo-test "+strconv.FormatInt(time.Now().Unix(), 10), false)
+	if err != nil {
+		t.Error("Failed to send USSD prompt message with error:", err)
+	}
+
+	t.Logf("Sent USSD prompt, response was: %#v\n", messageResponse)
+}
+
 func TestSendTextMessage(t *testing.T) {
 	// TODO(inhies): Create an internal rate limiting system and do away with
 	// this hacky 1 second delay.
@@ -17,7 +57,7 @@ func TestSendTextMessage(t *testing.T) {
 	if TEST_PHONE_NUMBER == "" {
 		t.Fatal("No test phone number specified. Please set NEXMO_NUM")
 	}
-	nexmo, err := New(API_KEY, API_SECRET)
+	nexmo, err := NewClientFromAPI(API_KEY, API_SECRET)
 	if err != nil {
 		t.Error("Failed to create Nexmo object with error:", err)
 	}
@@ -37,7 +77,7 @@ func TestFlashMessage(t *testing.T) {
 	if TEST_PHONE_NUMBER == "" {
 		t.Fatal("No test phone number specified. Please set NEXMO_NUM")
 	}
-	nexmo, err := New(API_KEY, API_SECRET)
+	nexmo, err := NewClientFromAPI(API_KEY, API_SECRET)
 	if err != nil {
 		t.Error("Failed to create Nexmo object with error:", err)
 	}

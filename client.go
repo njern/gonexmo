@@ -12,8 +12,7 @@ type Client struct {
 	useOauth  bool
 }
 
-// NexmoWithKeyAndSecret creates a Nexmo object with the provided API key / API
-// secret.
+// Creates a new Client type with the provided API key / API secret.
 func NewClientFromAPI(apiKey, apiSecret string) (*Client, error) {
 	if apiKey == "" {
 		return nil, errors.New("apiKey can not be empty!")

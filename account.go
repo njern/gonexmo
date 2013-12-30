@@ -10,6 +10,8 @@ type Account struct {
 	client *Client
 }
 
+// Returns a new Account type that uses the Client to communicate with the
+// Nexmo API.
 func NewAccountFromClient(client *Client) *Account {
 	return &Account{client: client}
 }

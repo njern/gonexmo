@@ -9,6 +9,14 @@ import (
 	"net/url"
 )
 
+// Message identifiers to be used with sendMessage()
+const (
+	sms = iota
+	flash
+	ussdPush
+	ussdPrompt
+)
+
 // MessageReport is the "status report" for a single SMS sent via the Nexmo API
 type MessageReport struct {
 	Status           string `json:"status"`
@@ -30,7 +38,7 @@ type MessageResponse struct {
 }
 
 func (nexmo *Client) sendMessage(from, to, text, clientReference string,
-	statusReportRequired bool, isFlashMessage bool) (*MessageResponse, error) {
+	statusReportRequired bool, class int) (*MessageResponse, error) {
 	if len(clientReference) > 40 {
 		return nil, errors.New("Client reference too long")
 	}
@@ -50,13 +58,22 @@ func (nexmo *Client) sendMessage(from, to, text, clientReference string,
 		values.Set("status_report_req", string(1))
 
 	}
-	if isFlashMessage {
-		values.Set("message_class", "0")
-	}
 
 	client := &http.Client{}
+	valuesReader := bytes.NewReader([]byte(values.Encode()))
 	var r *http.Request
-	r, _ = http.NewRequest("POST", apiRoot+"/sms/json", bytes.NewReader([]byte(values.Encode())))
+	switch class {
+	case sms:
+		r, _ = http.NewRequest("POST", apiRoot+"/sms/json", valuesReader)
+	case flash:
+		values.Set("message_class", "0")
+		r, _ = http.NewRequest("POST", apiRoot+"/sms/json", valuesReader)
+	case ussdPush:
+		r, _ = http.NewRequest("POST", apiRoot+"/ussd/json", valuesReader)
+	case ussdPrompt:
+		r, _ = http.NewRequest("POST", apiRoot+"/ussd-prompt/json", valuesReader)
+	}
+
 	r.Header.Add("Accept", "application/json")
 	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
@@ -77,16 +94,31 @@ func (nexmo *Client) sendMessage(from, to, text, clientReference string,
 	}
 }
 
-// SendTextMessage() sends a normal SMS
+// Sends a USSD push message.
+func (nexmo *Client) SendUssdPush(from, to, text, clientReference string,
+	statusReportRequired bool) (*MessageResponse, error) {
+	return nexmo.sendMessage(from, to, text, clientReference,
+		statusReportRequired, ussdPush)
+}
+
+// Sends a USSD prompt message. You must have a callback URL set up and
+// the 'from' field must be a long virtual number.
+func (nexmo *Client) SendUssdPrompt(from, to, text, clientReference string,
+	statusReportRequired bool) (*MessageResponse, error) {
+	return nexmo.sendMessage(from, to, text, clientReference,
+		statusReportRequired, ussdPrompt)
+}
+
+// SendTextMessage() sends a normal SMS.
 func (nexmo *Client) SendTextMessage(from, to, text, clientReference string,
 	statusReportRequired bool) (*MessageResponse, error) {
 	return nexmo.sendMessage(from, to, text, clientReference,
-		statusReportRequired, false)
+		statusReportRequired, sms)
 }
 
 // SendFlashMessage() sends a class 0 SMS (Flash message).
 func (nexmo *Client) SendFlashMessage(from, to, text, clientReference string,
 	statusReportRequired bool) (*MessageResponse, error) {
 	return nexmo.sendMessage(from, to, text, clientReference,
-		statusReportRequired, true)
+		statusReportRequired, flash)
 }
