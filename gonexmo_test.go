@@ -1,60 +1,58 @@
-package gonexmo
+package nexmo
 
 import (
+	"fmt"
+	"os"
 	"testing"
 )
 
-const (
-	API_KEY           = "YOUR NEXMO API KEY GOES HERE"
-	API_SECRET        = "YOUR NEXMO API SECRET GOES HERE"
-	TEST_PHONE_NUMBER = "YOUR PHONE NUMBER GOES HERE"
+var (
+	API_KEY, API_SECRET, TEST_PHONE_NUMBER, TEST_FROM string
 )
 
+func init() {
+	API_KEY = os.Getenv("NEXMO_KEY")
+	if API_KEY == "" {
+		fmt.Println("No API key specified. Please set NEXMO_KEY")
+		os.Exit(1)
+	}
+
+	API_SECRET = os.Getenv("NEXMO_SECRET")
+	if API_SECRET == "" {
+		fmt.Println("No API secret specified. Please set NEXMO_SECRET")
+		os.Exit(1)
+	}
+
+	TEST_PHONE_NUMBER = os.Getenv("NEXMO_NUM")
+
+	// Set a custom from value, or use the default. If you get error 15 when
+	// sending a message ("Illegal Sender Address - rejected") try setting this
+	// to your nexmo phone number.
+	TEST_FROM = os.Getenv("NEXMO_FROM")
+	if TEST_FROM == "" {
+		TEST_FROM = "gonexmo"
+	}
+}
+
 func TestNexmoCreation(t *testing.T) {
-	_, err := NexmoWithKeyAndSecret(API_KEY, API_SECRET)
+	_, err := NewClientFromAPI(API_KEY, API_SECRET)
 	if err != nil {
 		t.Error("Failed to create Nexmo object with error:", err)
 	}
 }
 
 func TestGetAccountBalance(t *testing.T) {
-	nexmo, err := NexmoWithKeyAndSecret(API_KEY, API_SECRET)
+	nexmo, err := NewClientFromAPI(API_KEY, API_SECRET)
 	if err != nil {
 		t.Error("Failed to create Nexmo object with error:", err)
 	}
 
-	balance, err := nexmo.GetBalance()
+	acct := NewAccountFromClient(nexmo)
+
+	balance, err := acct.GetBalance()
 	if err != nil {
 		t.Error("Failed to get account balance with error:", err)
 	}
 
 	t.Log("Got account balance: ", balance, "€")
-}
-
-func TestSendTextMessage(t *testing.T) {
-	nexmo, err := NexmoWithKeyAndSecret(API_KEY, API_SECRET)
-	if err != nil {
-		t.Error("Failed to create Nexmo object with error:", err)
-	}
-
-	messageResponse, err := nexmo.SendTextMessage("go-nexmo", "00358123412345", "Looks like go-nexmo works great, we should definitely buy that njern guy a beer!", "001", false)
-	if err != nil {
-		t.Error("Failed to send text message with error:", err)
-	}
-
-	t.Log("Sent SMS, response was: ", messageResponse)
-}
-
-func TestFlashMessage(t *testing.T) {
-	nexmo, err := NexmoWithKeyAndSecret(API_KEY, API_SECRET)
-	if err != nil {
-		t.Error("Failed to create Nexmo object with error:", err)
-	}
-
-	messageResponse, err := nexmo.SendFlashMessage("go-nexmo", "00358123412345", "Looks like go-nexmo works great, we should definitely buy that njern guy a beer!", "001", false)
-	if err != nil {
-		t.Error("Failed to send flash message (class 0 SMS) with error:", err)
-	}
-
-	t.Log("Sent Flash SMS, response was: ", messageResponse)
 }

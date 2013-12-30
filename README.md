@@ -1,6 +1,6 @@
-# go-nexmo
+# gonexmo [![GoDoc](https://godoc.org/github.com/njern/gonexmo?status.png)](https://godoc.org/github.com/njern/gonexmo)
 
-go-nexmo is a [Go](http://golang.org/) library tailored for sending SMS's with [Nexmo](https://www.nexmo.com/).
+gonexmo is a [Go](http://golang.org/) library tailored for sending SMS's with [Nexmo](https://www.nexmo.com/).
 
 
 ## Installation
@@ -21,14 +21,14 @@ The included tests in `gonexmo_test.go` also illustrate usage of the package.
 ## Usage
     import "github.com/njern/gonexmo"
     
-    nexmo, _ := gonexmo.NexmoWithKeyAndSecret("API_KEY_GOES_HERE", "API_SECRET_GOES_HERE")
+    acct, _ := nexmo.NexmoWithKeyAndSecret("API_KEY_GOES_HERE", "API_SECRET_GOES_HERE")
     
     // Test if it works by retrieving your account balance
-    balance, err := nexmo.GetBalance()
+    balance, err := acct.GetBalance()
     
     // Send an SMS (from, to, text, reference_id, status_report_required) 
     // See https://docs.nexmo.com/index.php/sms-api/send-message for details.
-    messageResponse, err := nexmo.SendTextMessage("go-nexmo", "00358123412345", "Looks like go-nexmo works great, we should definitely buy that njern guy a beer!", "001", false)
+    messageResponse, err := acct.SendTextMessage("go-nexmo", "00358123412345", "Looks like go-nexmo works great, we should definitely buy that njern guy a beer!", "001", false)
 
 ## Future plans
 
