@@ -17,6 +17,10 @@ const (
 	ussdPrompt
 )
 
+type Message struct {
+	client *Client
+}
+
 // MessageReport is the "status report" for a single SMS sent via the Nexmo API
 type MessageReport struct {
 	Status           string `json:"status"`
@@ -95,30 +99,30 @@ func (nexmo *Client) sendMessage(from, to, text, clientReference string,
 }
 
 // Sends a USSD push message.
-func (nexmo *Client) SendUssdPush(from, to, text, clientReference string,
+func (nexmo *Message) SendUssdPush(from, to, text, clientReference string,
 	statusReportRequired bool) (*MessageResponse, error) {
-	return nexmo.sendMessage(from, to, text, clientReference,
+	return nexmo.client.sendMessage(from, to, text, clientReference,
 		statusReportRequired, ussdPush)
 }
 
 // Sends a USSD prompt message. You must have a callback URL set up and
 // the 'from' field must be a long virtual number.
-func (nexmo *Client) SendUssdPrompt(from, to, text, clientReference string,
+func (nexmo *Message) SendUssdPrompt(from, to, text, clientReference string,
 	statusReportRequired bool) (*MessageResponse, error) {
-	return nexmo.sendMessage(from, to, text, clientReference,
+	return nexmo.client.sendMessage(from, to, text, clientReference,
 		statusReportRequired, ussdPrompt)
 }
 
 // SendTextMessage() sends a normal SMS.
-func (nexmo *Client) SendTextMessage(from, to, text, clientReference string,
+func (nexmo *Message) SendTextMessage(from, to, text, clientReference string,
 	statusReportRequired bool) (*MessageResponse, error) {
-	return nexmo.sendMessage(from, to, text, clientReference,
+	return nexmo.client.sendMessage(from, to, text, clientReference,
 		statusReportRequired, sms)
 }
 
 // SendFlashMessage() sends a class 0 SMS (Flash message).
-func (nexmo *Client) SendFlashMessage(from, to, text, clientReference string,
+func (nexmo *Message) SendFlashMessage(from, to, text, clientReference string,
 	statusReportRequired bool) (*MessageResponse, error) {
-	return nexmo.sendMessage(from, to, text, clientReference,
+	return nexmo.client.sendMessage(from, to, text, clientReference,
 		statusReportRequired, flash)
 }

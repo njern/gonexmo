@@ -7,6 +7,7 @@ import (
 // Nexmo encapsulates the Nexmo functions - must be created with
 // NexmoWithKeyAndSecret()
 type Client struct {
+	Account   *Account
 	apiKey    string
 	apiSecret string
 	useOauth  bool
@@ -20,5 +21,12 @@ func NewClientFromAPI(apiKey, apiSecret string) (*Client, error) {
 		return nil, errors.New("apiSecret can not be empty!")
 	}
 
-	return &Client{apiKey, apiSecret, false}, nil
+	c := &Client{
+		apiKey:    apiKey,
+		apiSecret: apiSecret,
+		useOauth:  false,
+	}
+
+	c.Account = &Account{client: c}
+	return c, nil
 }
