@@ -17,8 +17,27 @@ const (
 	ussdPrompt
 )
 
-type Message struct {
+type SMS struct {
 	client *Client
+}
+
+type Message struct {
+	From            string
+	To              string
+	Type            string `nexmo:"omitempty"`
+	Text            string `nexmo:"omitempty"`
+	StatusReportReq bool   `nexmo:"omitempty"`
+	ClientRef       string `nexmo:"omitempty"`
+	NetworkCode     string `nexmo:"omitempty"`
+	VCard           string `nexmo:"omitempty"`
+	VCal            string `nexmo:"omitempty"`
+	TTL             int    `nexmo:"omitempty"`
+	Class           int    `nexmo:"omitempty"`
+}
+type BinaryMessage struct {
+	Message
+	Body []byte
+	UDH  []byte
 }
 
 // MessageReport is the "status report" for a single SMS sent via the Nexmo API
@@ -99,7 +118,7 @@ func (nexmo *Client) sendMessage(from, to, text, clientReference string,
 }
 
 // Sends a USSD push message.
-func (nexmo *Message) SendUssdPush(from, to, text, clientReference string,
+func (nexmo *SMS) SendUssdPush(from, to, text, clientReference string,
 	statusReportRequired bool) (*MessageResponse, error) {
 	return nexmo.client.sendMessage(from, to, text, clientReference,
 		statusReportRequired, ussdPush)
@@ -107,21 +126,21 @@ func (nexmo *Message) SendUssdPush(from, to, text, clientReference string,
 
 // Sends a USSD prompt message. You must have a callback URL set up and
 // the 'from' field must be a long virtual number.
-func (nexmo *Message) SendUssdPrompt(from, to, text, clientReference string,
+func (nexmo *SMS) SendUssdPrompt(from, to, text, clientReference string,
 	statusReportRequired bool) (*MessageResponse, error) {
 	return nexmo.client.sendMessage(from, to, text, clientReference,
 		statusReportRequired, ussdPrompt)
 }
 
 // SendTextMessage() sends a normal SMS.
-func (nexmo *Message) SendTextMessage(from, to, text, clientReference string,
+func (nexmo *SMS) SendTextMessage(from, to, text, clientReference string,
 	statusReportRequired bool) (*MessageResponse, error) {
 	return nexmo.client.sendMessage(from, to, text, clientReference,
 		statusReportRequired, sms)
 }
 
 // SendFlashMessage() sends a class 0 SMS (Flash message).
-func (nexmo *Message) SendFlashMessage(from, to, text, clientReference string,
+func (nexmo *SMS) SendFlashMessage(from, to, text, clientReference string,
 	statusReportRequired bool) (*MessageResponse, error) {
 	return nexmo.client.sendMessage(from, to, text, clientReference,
 		statusReportRequired, flash)
