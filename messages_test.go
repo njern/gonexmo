@@ -17,7 +17,7 @@ func TestUssdPushMessage(t *testing.T) {
 	}
 	nexmo, err := NewClientFromAPI(API_KEY, API_SECRET)
 	if err != nil {
-		t.Error("Failed to create Nexmo object with error:", err)
+		t.Error("Failed to create Client object with error:", err)
 	}
 
 	messageResponse, err := nexmo.SendUssdPush(TEST_FROM, TEST_PHONE_NUMBER,
@@ -37,7 +37,7 @@ func TestUssdPromptMessage(t *testing.T) {
 	}
 	nexmo, err := NewClientFromAPI(API_KEY, API_SECRET)
 	if err != nil {
-		t.Error("Failed to create Nexmo object with error:", err)
+		t.Error("Failed to create Client object with error:", err)
 	}
 
 	messageResponse, err := nexmo.SendUssdPrompt(TEST_FROM, TEST_PHONE_NUMBER,
@@ -59,7 +59,7 @@ func TestSendTextMessage(t *testing.T) {
 	}
 	nexmo, err := NewClientFromAPI(API_KEY, API_SECRET)
 	if err != nil {
-		t.Error("Failed to create Nexmo object with error:", err)
+		t.Error("Failed to create Client object with error:", err)
 	}
 
 	messageResponse, err := nexmo.SendTextMessage(TEST_FROM, TEST_PHONE_NUMBER,
@@ -79,7 +79,7 @@ func TestFlashMessage(t *testing.T) {
 	}
 	nexmo, err := NewClientFromAPI(API_KEY, API_SECRET)
 	if err != nil {
-		t.Error("Failed to create Nexmo object with error:", err)
+		t.Error("Failed to create Client object with error:", err)
 	}
 
 	messageResponse, err := nexmo.SendFlashMessage(TEST_FROM, TEST_PHONE_NUMBER,

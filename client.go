@@ -4,8 +4,8 @@ import (
 	"errors"
 )
 
-// Nexmo encapsulates the Nexmo functions - must be created with
-// NexmoWithKeyAndSecret()
+// Client encapsulates the Nexmo functions - must be created with
+// NewClientFromAPI()
 type Client struct {
 	apiKey    string
 	apiSecret string

@@ -13,22 +13,23 @@ You can take a look at the documentation locally with:
 
 	godoc github.com/njern/gonexmo
 
-The included tests in `gonexmo_test.go` also illustrate usage of the package. 
+The included tests in `gonexmo_test.go` also illustrate usage of the package.
 
 **Note:** You must enter valid API credentials and a valid phone number in `gonexmo_test.go` or the tests will fail! I didn't feel like draining my own Nexmo account or receiving thousands of test SMS's - sorry :)
 
 
 ## Usage
     import "github.com/njern/gonexmo"
-    
-    acct, _ := nexmo.NexmoWithKeyAndSecret("API_KEY_GOES_HERE", "API_SECRET_GOES_HERE")
-    
+
+    client, _ := nexmo.NewClientFromAPI("API_KEY_GOES_HERE", "API_SECRET_GOES_HERE")
+    acct := nexmo.NewAccountFromClient(client)
+
     // Test if it works by retrieving your account balance
     balance, err := acct.GetBalance()
-    
-    // Send an SMS (from, to, text, reference_id, status_report_required) 
+
+    // Send an SMS (from, to, text, reference_id, status_report_required)
     // See https://docs.nexmo.com/index.php/sms-api/send-message for details.
-    messageResponse, err := acct.SendTextMessage("go-nexmo", "00358123412345", "Looks like go-nexmo works great, we should definitely buy that njern guy a beer!", "001", false)
+    messageResponse, err := client.SendTextMessage("go-nexmo", "00358123412345", "Looks like go-nexmo works great, we should definitely buy that njern guy a beer!", "001", false)
 
 ## Future plans
 
