@@ -1,5 +1,5 @@
 /*
-Package gonexmo implements a simple client library for accessing the Nexmo API.
+Package nexmo implements a simple client library for accessing the Nexmo API.
 
 Usage is simple. Create a nexmo.Client instance with NewClientFromAPI(), providing
 your API key and API secret. Then send messages with SendTextMessage() or

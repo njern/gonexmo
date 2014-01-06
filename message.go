@@ -40,7 +40,7 @@ type MessageResponse struct {
 func (nexmo *Client) sendMessage(from, to, text, clientReference string,
 	statusReportRequired bool, class int) (*MessageResponse, error) {
 	if len(clientReference) > 40 {
-		return nil, errors.New("Client reference too long")
+		return nil, errors.New("client reference too long")
 	}
 	var messageResponse *MessageResponse
 
@@ -89,34 +89,34 @@ func (nexmo *Client) sendMessage(from, to, text, clientReference string,
 	err = json.Unmarshal(body, &messageResponse)
 	if err != nil {
 		return nil, err
-	} else {
-		return messageResponse, nil
 	}
+
+	return messageResponse, nil
 }
 
-// Sends a USSD push message.
+// SendUssdPush sends a USSD push message.
 func (nexmo *Client) SendUssdPush(from, to, text, clientReference string,
 	statusReportRequired bool) (*MessageResponse, error) {
 	return nexmo.sendMessage(from, to, text, clientReference,
 		statusReportRequired, ussdPush)
 }
 
-// Sends a USSD prompt message. You must have a callback URL set up and
-// the 'from' field must be a long virtual number.
+// SendUssdPrompt sends a USSD prompt message. You must have a callback URL
+//  set up and the 'from' field must be a long virtual number.
 func (nexmo *Client) SendUssdPrompt(from, to, text, clientReference string,
 	statusReportRequired bool) (*MessageResponse, error) {
 	return nexmo.sendMessage(from, to, text, clientReference,
 		statusReportRequired, ussdPrompt)
 }
 
-// SendTextMessage() sends a normal SMS.
+// SendTextMessage sends a normal SMS.
 func (nexmo *Client) SendTextMessage(from, to, text, clientReference string,
 	statusReportRequired bool) (*MessageResponse, error) {
 	return nexmo.sendMessage(from, to, text, clientReference,
 		statusReportRequired, sms)
 }
 
-// SendFlashMessage() sends a class 0 SMS (Flash message).
+// SendFlashMessage sends a class 0 SMS (Flash message).
 func (nexmo *Client) SendFlashMessage(from, to, text, clientReference string,
 	statusReportRequired bool) (*MessageResponse, error) {
 	return nexmo.sendMessage(from, to, text, clientReference,

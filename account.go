@@ -6,17 +6,19 @@ import (
 	"net/http"
 )
 
+// Account represents the user's account. Used when retrieving e.g current
+// balance.
 type Account struct {
 	client *Client
 }
 
-// Returns a new Account type that uses the Client to communicate with the
-// Nexmo API.
+// NewAccountFromClient returns a new Account type that uses the Client
+// to communicate with the Nexmo API.
 func NewAccountFromClient(client *Client) *Account {
 	return &Account{client: client}
 }
 
-// GetBalance() retrieves the current balance of your Nexmo account in Euros (€)
+// GetBalance retrieves the current balance of your Nexmo account in Euros (€)
 func (nexmo *Account) GetBalance() (float64, error) {
 	// Declare this locally, since we are only going to return a float64.
 	type AccountBalance struct {
@@ -42,7 +44,7 @@ func (nexmo *Account) GetBalance() (float64, error) {
 	err = json.Unmarshal(body, &accBalance)
 	if err != nil {
 		return 0.0, err
-	} else {
-		return accBalance.Value, nil
 	}
+
+	return accBalance.Value, nil
 }
