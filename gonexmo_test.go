@@ -37,6 +37,7 @@ func init() {
 func TestNexmoCreation(t *testing.T) {
 	_, err := NewClientFromAPI(API_KEY, API_SECRET)
 	if err != nil {
+<<<<<<< HEAD
 		t.Error("Failed to create Client object with error:", err)
 	}
 }
@@ -56,3 +57,8 @@ func TestGetAccountBalance(t *testing.T) {
 
 	t.Log("Got account balance: ", balance, "€")
 }
+=======
+		t.Error("Failed to create Client with error:", err)
+	}
+}
+>>>>>>> 17fbd3f4f8eef122e74920e99ad6f75630e5bed2
