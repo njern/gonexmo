@@ -12,15 +12,6 @@ type Account struct {
 	client *Client
 }
 
-<<<<<<< HEAD
-// NewAccountFromClient returns a new Account type that uses the Client
-// to communicate with the Nexmo API.
-func NewAccountFromClient(client *Client) *Account {
-	return &Account{client: client}
-}
-
-=======
->>>>>>> 17fbd3f4f8eef122e74920e99ad6f75630e5bed2
 // GetBalance retrieves the current balance of your Nexmo account in Euros (€)
 func (nexmo *Account) GetBalance() (float64, error) {
 	// Declare this locally, since we are only going to return a float64.
@@ -48,9 +39,5 @@ func (nexmo *Account) GetBalance() (float64, error) {
 	if err != nil {
 		return 0.0, err
 	}
-<<<<<<< HEAD
-
-=======
->>>>>>> 17fbd3f4f8eef122e74920e99ad6f75630e5bed2
 	return accBalance.Value, nil
 }
