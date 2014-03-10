@@ -42,6 +42,34 @@ Nexmo account or receiving thousands of test SMS's - sorry :)
 
 	messageResponse, err := nexmo.SMS.Send(message)
 
+## Receiving inbound messages
+
+    import (
+        "github.com/njern/gonexmo"
+        "log"
+        "net/http"
+    )
+
+    func main() {
+        messages := make(chan *nexmo.RecvdMessage)
+        h := nexmo.NewMessageHandler(messages)
+
+        go func() {
+            for {
+                msg := <-messages
+                log.Printf("%v\n",msg)
+            }
+        }()
+
+        // Set your Nexmo callback url to http://<domain or ip>:8080/get/
+        http.HandleFunc("/get/", h)
+        if err := http.ListenAndServe(":8080", nil); err != nil {
+            log.Fatal("ListenAndServe: ", err)
+        }
+
+    }
+
+
 ## Future plans
 
 * Implement the rest of the Nexmo API
