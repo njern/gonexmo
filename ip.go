@@ -2,6 +2,7 @@ package nexmo
 
 import "net"
 
+// IP's sourced from https://help.nexmo.com/entries/23181071-Source-IP-subnet-for-incoming-traffic-in-REST-API
 var masks = []string{
 	"174.37.245.32/29",
 	"174.36.197.192/28",
