@@ -174,11 +174,11 @@ func (c *SMS) Send(msg *SMSMessage) (*MessageResponse, error) {
 	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	resp, err := client.Do(r)
-	defer resp.Body.Close()
 
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
 
