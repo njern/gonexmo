@@ -112,7 +112,6 @@ func (c *SMS) Send(msg *SMSMessage) (*MessageResponse, error) {
 		} else {
 			// TODO(inhies): UTF8 and URL encode before setting
 			values.Set("type", "text")
-			values.Set("text", msg.Text)
 		}
 	case Binary:
 		if len(msg.UDH) == 0 || len(msg.Body) == 0 {
@@ -164,6 +163,7 @@ func (c *SMS) Send(msg *SMSMessage) (*MessageResponse, error) {
 
 	values.Set("to", msg.To)
 	values.Set("from", msg.From)
+	values.Set("text", msg.Text)
 
 	client := &http.Client{}
 	valuesReader := bytes.NewReader([]byte(values.Encode()))
