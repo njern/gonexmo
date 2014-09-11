@@ -1,6 +1,6 @@
 # gonexmo [![GoDoc](https://godoc.org/github.com/njern/gonexmo?status.png)](https://godoc.org/github.com/njern/gonexmo)
 
-gonexmo is a [Go](http://golang.org/) library tailored for sending SMS's with 
+gonexmo is a [Go](http://golang.org/) library tailored for sending SMS's with
 [Nexmo](https://www.nexmo.com/).
 
 
@@ -16,31 +16,31 @@ You can take a look at the documentation locally with:
 
 The included tests in `gonexmo_test.go` also illustrate usage of the package.
 
-**Note:** You must enter valid API credentials and a valid phone number in 
-`gonexmo_test.go` or the tests will fail! I didn't feel like draining my own 
+**Note:** You must enter valid API credentials and a valid phone number in
+`gonexmo_test.go` or the tests will fail! I didn't feel like draining my own
 Nexmo account or receiving thousands of test SMS's - sorry :)
 
 
 ## Usage
     import "github.com/njern/gonexmo"
-    
-    nexmo, _ := nexmo.NexmoWithKeyAndSecret("API_KEY_GOES_HERE", "API_SECRET_GOES_HERE")
-    
+
+    nexmo_client, _ := nexmo.NewClientFromAPI("API_KEY_GOES_HERE", "API_SECRET_GOES_HERE")
+
     // Test if it works by retrieving your account balance
-    balance, err := Nexmo.Account.GetBalance()
-    
+    balance, err := nexmo_client.Account.GetBalance()
+
     // Send an SMS
     // See https://docs.nexmo.com/index.php/sms-api/send-message for details.
 	message := &SMSMessage{
-		From:           "go-nexmo", 	
+		From:           "go-nexmo",
         To:              "00358123412345",
-		Type:            Text,
+		Type:            nexmo.Text,
 		Text:            "Gonexmo test SMS message, sent at " + time.Now().String(),
 		ClientReference: "gonexmo-test " + strconv.FormatInt(time.Now().Unix(), 10),
-		Class:           Standard,
+		Class:           nexmo.Standard,
 	}
 
-	messageResponse, err := nexmo.SMS.Send(message)
+	messageResponse, err := nexmo_client.SMS.Send(message)
 
 ## Receiving inbound messages
 
@@ -77,6 +77,6 @@ Nexmo account or receiving thousands of test SMS's - sorry :)
 
 ## How can you help?
 
-* Let me know if you're using gonexmo by dropping me a line at 
+* Let me know if you're using gonexmo by dropping me a line at
   [github user name] at walkbase.com
 * Let me know about any bugs / annoyances the same way
