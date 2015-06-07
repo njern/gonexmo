@@ -6,8 +6,6 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
-	"net/url"
-	"strconv"
 )
 
 // SMS represents the SMS API functions for sending text messages.
@@ -17,12 +15,12 @@ type SMS struct {
 
 // SMS message types.
 const (
-	Text = iota + 1
-	Binary
-	WAPPush
-	Unicode
-	VCal
-	VCard
+	Text    = "text"
+	Binary  = "binary"
+	WAPPush = "wappush"
+	Unicode = "unicode"
+	VCal    = "vcal"
+	VCard   = "vcard"
 )
 
 // SMS message classes.
@@ -51,19 +49,21 @@ const (
 
 // Type SMSMessage defines a single SMS message.
 type SMSMessage struct {
-	From                 string
-	To                   string
-	Type                 int    // Optional: default to Text.
-	Text                 string // Optional.
-	StatusReportRequired bool   // Optional.
-	ClientReference      string // Optional.
-	NetworkCode          string // Optional.
-	VCard                string // Optional.
-	VCal                 string // Optional.
-	TTL                  int    // Optional.
-	Class                int    // Optional.
-	Body                 []byte // Required for Binary message.
-	UDH                  []byte // Required for Binary message.
+	ApiKey               string `json:"api_key"`
+	ApiSecret            string `json:"api_secret"`
+	From                 string `json:"from"`
+	To                   string `json:"to"`
+	Type                 string `json:"type"`
+	Text                 string `json:"text,omitempty"`              // Optional.
+	StatusReportRequired int    `json:"status-report-req,omitempty"` // Optional.
+	ClientReference      string `json:"client-ref,omitempty"`        // Optional.
+	NetworkCode          string `json:"network-code,omitempty"`      // Optional.
+	VCard                string `json:"vcrad,omitempty"`             // Optional.
+	VCal                 string `json:"vcal,omitempty"`              // Optional.
+	TTL                  int    `json:"ttl,omitempty"`               // Optional.
+	Class                int    `json:"message-class,omitempty"`     // Optional.
+	Body                 []byte `json:"body,omitempty"`              // Required for Binary message.
+	UDH                  []byte `json:"udh,omitempty"`               // Required for Binary message.
 }
 
 // MessageReport is the "status report" for a single SMS sent via the Nexmo API
@@ -102,76 +102,35 @@ func (c *SMS) Send(msg *SMSMessage) (*MessageResponse, error) {
 
 	var messageResponse *MessageResponse
 
-	values := make(url.Values)
-
 	switch msg.Type {
 	// 0 would be default
-	case 0, Text:
+	case Text:
 		if len(msg.Text) <= 0 {
 			return nil, errors.New("Invalid message text")
-		} else {
-			// TODO(inhies): UTF8 and URL encode before setting
-			values.Set("type", "text")
 		}
 	case Binary:
 		if len(msg.UDH) == 0 || len(msg.Body) == 0 {
 			return nil, errors.New("Invalid binary message")
 		}
-		values.Set("type", "binary")
-	case WAPPush:
-		values.Set("type", "wappush")
-	case Unicode:
-		values.Set("type", "unicode")
-	case VCal:
-		values.Set("type", "vcal")
-	case VCard:
-		values.Set("type", "vcard")
 	}
 
 	if !c.client.useOauth {
-		values.Set("api_key", c.client.apiKey)
-		values.Set("api_secret", c.client.apiSecret)
+		msg.ApiKey = c.client.apiKey
+		msg.ApiSecret = c.client.apiSecret
 	}
-
-	if msg.StatusReportRequired {
-		values.Set("status_report_req", "1")
-	}
-
-	if msg.ClientReference != "" {
-		values.Set("client_ref", msg.ClientReference)
-	}
-
-	if msg.NetworkCode != "" {
-		values.Set("network-code", msg.NetworkCode)
-	}
-
-	if msg.VCard != "" {
-		values.Set("vcard", msg.VCard)
-	}
-
-	if msg.VCal != "" {
-		values.Set("vcal", msg.VCal)
-	}
-
-	if msg.TTL != 0 {
-		values.Set("ttl", strconv.Itoa(msg.TTL))
-	}
-
-	if msg.Class != 0 {
-		values.Set("message-class", strconv.Itoa(msg.Class))
-	}
-
-	values.Set("to", msg.To)
-	values.Set("from", msg.From)
-	values.Set("text", msg.Text)
 
 	client := &http.Client{}
-	valuesReader := bytes.NewReader([]byte(values.Encode()))
+
 	var r *http.Request
-	r, _ = http.NewRequest("POST", apiRoot+"/sms/json", valuesReader)
+	buf, err := json.Marshal(msg)
+	if err != nil {
+		return nil, errors.New("Invalid message struct. Cannot convert to json.")
+	}
+	b := bytes.NewBuffer(buf)
+	r, _ = http.NewRequest("POST", apiRoot+"/sms/json", b)
 
 	r.Header.Add("Accept", "application/json")
-	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	r.Header.Add("Content-Type", "application/json")
 
 	resp, err := client.Do(r)
 
