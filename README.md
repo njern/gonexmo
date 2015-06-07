@@ -52,7 +52,7 @@ Nexmo account or receiving thousands of test SMS's - sorry :)
 
     func main() {
         messages := make(chan *nexmo.RecvdMessage)
-        h := nexmo.NewMessageHandler(messages)
+        h := nexmo.NewMessageHandler(messages,false)
 
         go func() {
             for {

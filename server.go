@@ -1,6 +1,7 @@
 package nexmo
 
 import (
+	"net"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -71,12 +72,28 @@ type DeliveryReceipt struct {
 // NewDeliveryHandler creates a new http.HandlerFunc that can be used to listen
 // for deivery receipts from the Nexmo server. Any receipts received will be
 // decoded nad passed to the out chan.
-func NewDeliveryHandler(out chan *DeliveryReceipt) http.HandlerFunc {
+func NewDeliveryHandler(out chan *DeliveryReceipt, verifyIPs bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
+		if verifyIPs {
+			// Check if the request came from Nexmo
+			host, _, err := net.SplitHostPort(req.RemoteAddr)
+			if !IsTrustedIP(host) || err != nil {
+				http.Error(w, "", http.StatusInternalServerError)
+				return
+			}
+		}
+
+		var err error
+		// Check if the query is empty. If it is, it's just Nexmo
+		// making sure our service is up, so we don't want to return
+		// an error.
+		if req.URL.RawQuery == "" {
+			return
+		}
+
 		req.ParseForm()
 		// Decode the form data
 		m := new(DeliveryReceipt)
-		var err error
 
 		m.To = req.FormValue("to")
 		m.NetworkCode = req.FormValue("network-code")
@@ -126,12 +143,29 @@ func NewDeliveryHandler(out chan *DeliveryReceipt) http.HandlerFunc {
 // NewMessageHandler creates a new http.HandlerFunc that can be used to listen
 // for new messages from the Nexmo server. Any new messages received will be
 // decoded and passed to the out chan.
-func NewMessageHandler(out chan *RecvdMessage) http.HandlerFunc {
+func NewMessageHandler(out chan *RecvdMessage, verifyIPs bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
+		if verifyIPs {
+			// Check if the request came from Nexmo
+			host, _, err := net.SplitHostPort(req.RemoteAddr)
+			if !IsTrustedIP(host) || err != nil {
+				http.Error(w, "", http.StatusInternalServerError)
+				return
+			}
+		}
+
+		var err error
+
+		// Check if the query is empty. If it is, it's just Nexmo
+		// making sure our service is up, so we don't want to return
+		// an error.
+		if req.URL.RawQuery == "" {
+			return
+		}
+
 		req.ParseForm()
 		// Decode the form data
 		m := new(RecvdMessage)
-		var err error
 		switch req.FormValue("type") {
 		case "text":
 			m.Text, err = url.QueryUnescape(req.FormValue("text"))
