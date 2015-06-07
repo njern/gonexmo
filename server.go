@@ -54,6 +54,75 @@ type RecvdMessage struct {
 	UDH []byte
 }
 
+// DeliveryReceipt is a delivery receipt for a single SMS sent via the Nexmo API
+type DeliveryReceipt struct {
+	To              string    `json:"to"`
+	NetworkCode     string    `json:"network-code"`
+	MessageID       string    `json:"messageId"`
+	MSISDN          string    `json:"msisdn"`
+	Status          string    `json:"status"`
+	ErrorCode       string    `json:"err-code"`
+	Price           string    `json:"price"`
+	SCTS            time.Time `json:"scts"`
+	Timestamp       time.Time `json:"message-timestamp"`
+	ClientReference string    `json:"client-ref"`
+}
+
+// NewDeliveryHandler creates a new http.HandlerFunc that can be used to listen
+// for deivery receipts from the Nexmo server. Any receipts received will be
+// decoded nad passed to the out chan.
+func NewDeliveryHandler(out chan *DeliveryReceipt) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		req.ParseForm()
+		// Decode the form data
+		m := new(DeliveryReceipt)
+		var err error
+
+		m.To = req.FormValue("to")
+		m.NetworkCode = req.FormValue("network-code")
+		m.MessageID = req.FormValue("messageId")
+		m.MSISDN = req.FormValue("msisdn")
+		m.Status = req.FormValue("status")
+		m.ErrorCode = req.FormValue("err-code")
+		m.Price = req.FormValue("price")
+		m.ClientReference = req.FormValue("client-ref")
+
+		t, err := url.QueryUnescape(req.FormValue("scts"))
+		if err != nil {
+			http.Error(w, "", http.StatusInternalServerError)
+			return
+		}
+
+		// Convert the timestamp to a time.Time.
+		timestamp, err := time.Parse("0601021504", t)
+		if err != nil {
+			http.Error(w, "", http.StatusInternalServerError)
+			return
+		}
+
+		m.SCTS = timestamp
+
+		t, err = url.QueryUnescape(req.FormValue("message-timestamp"))
+		if err != nil {
+			http.Error(w, "", http.StatusInternalServerError)
+			return
+		}
+
+		// Convert the timestamp to a time.Time.
+		timestamp, err = time.Parse("2006-01-02 15:04:05", t)
+		if err != nil {
+			http.Error(w, "", http.StatusInternalServerError)
+			return
+		}
+
+		m.Timestamp = timestamp
+
+		// Pass it out on the chan
+		out <- m
+	}
+
+}
+
 // NewMessageHandler creates a new http.HandlerFunc that can be used to listen
 // for new messages from the Nexmo server. Any new messages received will be
 // decoded and passed to the out chan.
