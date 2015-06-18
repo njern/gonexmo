@@ -73,6 +73,7 @@ type RecvdMessage struct {
 	// When Type == text:
 	Text string // Content of the message
 
+	Keyword string // First word in the message body, typically used with short codes
 	// When type == binary:
 
 	// Content of the message.
@@ -238,6 +239,7 @@ func NewMessageHandler(out chan *RecvdMessage, verifyIPs bool) http.HandlerFunc 
 		m.NetworkCode = req.FormValue("network-code")
 		m.ID = req.FormValue("messageId")
 
+		m.Keyword = req.FormValue("keyword")
 		t, err := url.QueryUnescape(req.FormValue("message-timestamp"))
 		if err != nil {
 			http.Error(w, "", http.StatusInternalServerError)
