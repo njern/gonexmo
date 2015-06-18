@@ -8,10 +8,37 @@ import (
 	"time"
 )
 
+type MessageType int
+
+const (
+	TextMessage = iota + 1
+	UnicodeMessage
+	BinaryMessage
+)
+
+var messageTypeMap = map[string]MessageType{
+	"text":    TextMessage,
+	"unicdoe": UnicodeMessage,
+	"binary":  BinaryMessage,
+}
+
+var messageTypeIntMap = map[MessageType]string{
+	TextMessage:    "text",
+	UnicodeMessage: "unicode",
+	BinaryMessage:  "binary",
+}
+
+func (m MessageType) String() string {
+	if m < 1 || m > 3 {
+		return "undefined"
+	}
+	return messageTypeIntMap[m]
+}
+
 // RecvdMessage represents a message that was received from the Nexmo API.
 type RecvdMessage struct {
 	// Expected values are "text" or "binary".
-	Type int
+	Type MessageType
 
 	// Recipient number (your long virtual number).
 	To string
@@ -173,23 +200,32 @@ func NewMessageHandler(out chan *RecvdMessage, verifyIPs bool) http.HandlerFunc 
 				http.Error(w, "", http.StatusInternalServerError)
 				return
 			}
+			m.Type = TextMessage
+		case "unicode":
+			m.Text, err = url.QueryUnescape(req.FormValue("text"))
+			if err != nil {
+				http.Error(w, "", http.StatusInternalServerError)
+				return
+			}
+			m.Type = UnicodeMessage
 
 			// TODO: I have no idea if this data stuff works, as I'm unable to
 			// send data SMS messages.
 		case "binary":
-			data, err := url.QueryUnescape(req.FormValue("text"))
+			data, err := url.QueryUnescape(req.FormValue("data"))
 			if err != nil {
 				http.Error(w, "", http.StatusInternalServerError)
 				return
 			}
 			m.Data = []byte(data)
 
-			udh, err := url.QueryUnescape(req.FormValue("text"))
+			udh, err := url.QueryUnescape(req.FormValue("udh"))
 			if err != nil {
 				http.Error(w, "", http.StatusInternalServerError)
 				return
 			}
 			m.UDH = []byte(udh)
+			m.Type = BinaryMessage
 
 		default:
 			//error
