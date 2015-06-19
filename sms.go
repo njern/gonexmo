@@ -66,23 +66,71 @@ type SMSMessage struct {
 	UDH                  []byte `json:"udh,omitempty"`               // Required for Binary message.
 }
 
+type ResponseCode int
+
+func (c ResponseCode) String() string {
+	return responseCodeMap[c]
+}
+
+const (
+	ResponseSuccess = iota
+	ResponseThrottled
+	ResponseMissingParams
+	ResponseInvalidParams
+	ResponseInvalidCredentials
+	ResponseInternalError
+	ResponseInvalidMessage
+	ResponseNumberBarred
+	ResponsePartnerAcctBarred
+	ResponsePartnerQuotaExceeded
+	ResponseRESTNotEnabled
+	ResponseMessageTooLong
+	ResponseCommunicationFailed
+	ResponseInvalidSignature
+	ResponseInvalidSenderAddress
+	ResponseInvalidTTL
+	ResponseFacilityNotAllowed
+	ResponseInvalidMessageClass
+)
+
+var responseCodeMap = map[ResponseCode]string{
+	ResponseSuccess:              "Success",
+	ResponseThrottled:            "Throttled",
+	ResponseMissingParams:        "Missing params",
+	ResponseInvalidParams:        "Invalid params",
+	ResponseInvalidCredentials:   "Invalid credentials",
+	ResponseInternalError:        "Internal error",
+	ResponseInvalidMessage:       "Invalid message",
+	ResponseNumberBarred:         "Number barred",
+	ResponsePartnerAcctBarred:    "Partner account barred",
+	ResponsePartnerQuotaExceeded: "Partner quota exceeded",
+	ResponseRESTNotEnabled:       "Account not enabled for REST",
+	ResponseMessageTooLong:       "Message too long",
+	ResponseCommunicationFailed:  "Communication failed",
+	ResponseInvalidSignature:     "Invalid signature",
+	ResponseInvalidSenderAddress: "Invalid sender address",
+	ResponseInvalidTTL:           "Invalid TTL",
+	ResponseFacilityNotAllowed:   "Facility not allowed",
+	ResponseInvalidMessageClass:  "Invalid message class",
+}
+
 // MessageReport is the "status report" for a single SMS sent via the Nexmo API
 type MessageReport struct {
-	Status           string `json:"status"`
-	MessageID        string `json:"message-id"`
-	To               string `json:"to"`
-	ClientReference  string `json:"client-ref"`
-	RemainingBalance string `json:"remaining-balance"`
-	MessagePrice     string `json:"message-price"`
-	Network          string `json:"network"`
-	ErrorText        string `json:"error-text"`
+	Status           ResponseCode `json:"status,string"`
+	MessageID        string       `json:"message-id"`
+	To               string       `json:"to"`
+	ClientReference  string       `json:"client-ref"`
+	RemainingBalance string       `json:"remaining-balance"`
+	MessagePrice     string       `json:"message-price"`
+	Network          string       `json:"network"`
+	ErrorText        string       `json:"error-text"`
 }
 
 // MessageResponse contains the response from Nexmo's API after we attempt to
 // send any kind of message.
 // It will contain one MessageReport for every 160 chars sent.
 type MessageResponse struct {
-	MessageCount string          `json:"message-count"`
+	MessageCount int             `json:"message-count,string"`
 	Messages     []MessageReport `json:"messages"`
 }
 
