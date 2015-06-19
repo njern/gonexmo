@@ -103,7 +103,7 @@ func (c ResponseCode) String() string {
 }
 
 const (
-	ResponseSuccess = iota
+	ResponseSuccess ResponseCode = iota
 	ResponseThrottled
 	ResponseMissingParams
 	ResponseInvalidParams
