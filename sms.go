@@ -151,8 +151,8 @@ func (c *SMS) Send(msg *SMSMessage) (*MessageResponse, error) {
 	var messageResponse *MessageResponse
 
 	switch msg.Type {
-	// 0 would be default
 	case Text:
+	case Unicode:
 		if len(msg.Text) <= 0 {
 			return nil, errors.New("Invalid message text")
 		}
