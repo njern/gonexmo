@@ -59,11 +59,22 @@ var messageClassMap = map[MessageClass]string{
 func (m MessageClass) String() string {
 	return messageClassMap[m]
 }
+func (m *SMSMessage) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		ApiKey    string `json:"api_key"`
+		ApiSecret string `json:"api_secret"`
+		SMSMessage
+	}{
+		ApiKey:     m.apiKey,
+		ApiSecret:  m.apiSecret,
+		SMSMessage: *m,
+	})
+}
 
 // Type SMSMessage defines a single SMS message.
 type SMSMessage struct {
-	ApiKey               string       `json:"api_key"`
-	ApiSecret            string       `json:"api_secret"`
+	apiKey               string
+	apiSecret            string
 	From                 string       `json:"from"`
 	To                   string       `json:"to"`
 	Type                 string       `json:"type"`
@@ -185,10 +196,9 @@ func (c *SMS) Send(msg *SMSMessage) (*MessageResponse, error) {
 			return nil, errors.New("Invalid WAP Push parameters")
 		}
 	}
-
 	if !c.client.useOauth {
-		msg.ApiKey = c.client.apiKey
-		msg.ApiSecret = c.client.apiSecret
+		msg.apiKey = c.client.apiKey
+		msg.apiSecret = c.client.apiSecret
 	}
 
 	client := &http.Client{}
