@@ -23,12 +23,14 @@ const (
 	VCard   = "vcard"
 )
 
+type MessageClass int
+
 // SMS message classes.
 const (
 	// This type of SMS message is displayed on the mobile screen without being
 	// saved in the message store or on the SIM card; unless explicitly saved
 	// by the mobile user.
-	Flash = iota
+	Flash MessageClass = iota
 
 	// This message is to be stored in the device memory or the SIM card
 	// (depending on memory availability).
@@ -47,23 +49,40 @@ const (
 	Forward
 )
 
+var messageClassMap = map[MessageClass]string{
+	Flash:    "flash",
+	Standard: "standard",
+	SIMData:  "SIM data",
+	Forward:  "forward",
+}
+
+func (m MessageClass) String() string {
+	return messageClassMap[m]
+}
+
 // Type SMSMessage defines a single SMS message.
 type SMSMessage struct {
-	ApiKey               string `json:"api_key"`
-	ApiSecret            string `json:"api_secret"`
-	From                 string `json:"from"`
-	To                   string `json:"to"`
-	Type                 string `json:"type"`
-	Text                 string `json:"text,omitempty"`              // Optional.
-	StatusReportRequired int    `json:"status-report-req,omitempty"` // Optional.
-	ClientReference      string `json:"client-ref,omitempty"`        // Optional.
-	NetworkCode          string `json:"network-code,omitempty"`      // Optional.
-	VCard                string `json:"vcrad,omitempty"`             // Optional.
-	VCal                 string `json:"vcal,omitempty"`              // Optional.
-	TTL                  int    `json:"ttl,omitempty"`               // Optional.
-	Class                int    `json:"message-class,omitempty"`     // Optional.
-	Body                 []byte `json:"body,omitempty"`              // Required for Binary message.
-	UDH                  []byte `json:"udh,omitempty"`               // Required for Binary message.
+	ApiKey               string       `json:"api_key"`
+	ApiSecret            string       `json:"api_secret"`
+	From                 string       `json:"from"`
+	To                   string       `json:"to"`
+	Type                 string       `json:"type"`
+	Text                 string       `json:"text,omitempty"`              // Optional.
+	StatusReportRequired int          `json:"status-report-req,omitempty"` // Optional.
+	ClientReference      string       `json:"client-ref,omitempty"`        // Optional.
+	NetworkCode          string       `json:"network-code,omitempty"`      // Optional.
+	VCard                string       `json:"vcrad,omitempty"`             // Optional.
+	VCal                 string       `json:"vcal,omitempty"`              // Optional.
+	TTL                  int          `json:"ttl,omitempty"`               // Optional.
+	Class                MessageClass `json:"message-class,omitempty"`     // Optional.
+	Body                 []byte       `json:"body,omitempty"`              // Required for Binary message.
+	UDH                  []byte       `json:"udh,omitempty"`               // Required for Binary message.
+
+	// The following is only for type=wappush
+
+	Title    string `json:"title,omitempty"`    // Title shown to recipient
+	URL      string `json:"url,omitempty"`      // WAP Push URL
+	Validity int    `json:"validity,omitempty"` // Duration WAP Push is available in milliseconds
 }
 
 type ResponseCode int
@@ -159,6 +178,11 @@ func (c *SMS) Send(msg *SMSMessage) (*MessageResponse, error) {
 	case Binary:
 		if len(msg.UDH) == 0 || len(msg.Body) == 0 {
 			return nil, errors.New("Invalid binary message")
+		}
+
+	case WAPPush:
+		if len(msg.URL) == 0 || len(msg.Title) == 0 {
+			return nil, errors.New("Invalid WAP Push parameters")
 		}
 	}
 
