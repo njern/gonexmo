@@ -24,14 +24,14 @@ Nexmo account or receiving thousands of test SMS's - sorry :)
 ## Usage
     import "github.com/njern/gonexmo"
 
-    nexmo_client, _ := nexmo.NewClientFromAPI("API_KEY_GOES_HERE", "API_SECRET_GOES_HERE")
+    nexmoClient, _ := nexmo.NewClientFromAPI("API_KEY_GOES_HERE", "API_SECRET_GOES_HERE")
 
     // Test if it works by retrieving your account balance
-    balance, err := nexmo_client.Account.GetBalance()
+    balance, err := nexmoClient.Account.GetBalance()
 
     // Send an SMS
     // See https://docs.nexmo.com/index.php/sms-api/send-message for details.
-	message := &SMSMessage{
+	message := &nexmo.SMSMessage{
 		From:           "go-nexmo",
         To:              "00358123412345",
 		Type:            nexmo.Text,
@@ -40,7 +40,7 @@ Nexmo account or receiving thousands of test SMS's - sorry :)
 		Class:           nexmo.Standard,
 	}
 
-	messageResponse, err := nexmo_client.SMS.Send(message)
+	messageResponse, err := nexmoClient.SMS.Send(message)
 
 ## Receiving inbound messages
 
@@ -73,7 +73,6 @@ Nexmo account or receiving thousands of test SMS's - sorry :)
 ## Future plans
 
 * Implement the rest of the Nexmo API
-* Release a few more Go libraries - once I clean them up :)
 
 ## How can you help?
 
