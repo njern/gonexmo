@@ -21,7 +21,6 @@ func (nexmo *Account) GetBalance() (float64, error) {
 
 	var accBalance *AccountBalance
 
-	client := &http.Client{}
 	r, reqErr := http.NewRequest("GET", apiRoot+"/account/get-balance/"+
 		nexmo.client.apiKey+"/"+nexmo.client.apiSecret, nil)
 
@@ -31,7 +30,7 @@ func (nexmo *Account) GetBalance() (float64, error) {
 
 	r.Header.Add("Accept", "application/json")
 
-	resp, err := client.Do(r)
+	resp, err := nexmo.client.HTTPClient.Do(r)
 	if err != nil {
 		return 0.0, err
 	}
