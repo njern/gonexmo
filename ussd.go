@@ -80,7 +80,7 @@ func (c *USSD) Send(msg *USSDMessage) (*MessageResponse, error) {
 	values.Set("to", msg.To)
 	values.Set("from", msg.From)
 
-	client := &http.Client{}
+	client := &c.client.HTTPClient
 	valuesReader := bytes.NewReader([]byte(values.Encode()))
 	var r *http.Request
 	r, _ = http.NewRequest("POST", apiRoot+endpoint, valuesReader)

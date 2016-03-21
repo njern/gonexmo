@@ -201,7 +201,7 @@ func (c *SMS) Send(msg *SMSMessage) (*MessageResponse, error) {
 		msg.apiSecret = c.client.apiSecret
 	}
 
-	client := &http.Client{}
+	client := c.client.HTTPClient
 
 	var r *http.Request
 	buf, err := json.Marshal(msg)
