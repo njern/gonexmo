@@ -2,17 +2,19 @@ package nexmo
 
 import (
 	"errors"
+	"net/http"
 )
 
 // Client encapsulates the Nexmo functions - must be created with
 // NewClientFromAPI()
 type Client struct {
-	Account   *Account
-	SMS       *SMS
-	USSD      *USSD
-	apiKey    string
-	apiSecret string
-	useOauth  bool
+	Account    *Account
+	SMS        *SMS
+	USSD       *USSD
+	HttpClient *http.Client
+	apiKey     string
+	apiSecret  string
+	useOauth   bool
 }
 
 // NewClientFromAPI creates a new Client type with the
@@ -33,5 +35,6 @@ func NewClientFromAPI(apiKey, apiSecret string) (*Client, error) {
 	c.Account = &Account{c}
 	c.SMS = &SMS{c}
 	c.USSD = &USSD{c}
+	c.HttpClient = http.DefaultClient
 	return c, nil
 }

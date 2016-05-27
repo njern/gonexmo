@@ -80,7 +80,6 @@ func (c *USSD) Send(msg *USSDMessage) (*MessageResponse, error) {
 	values.Set("to", msg.To)
 	values.Set("from", msg.From)
 
-	client := &http.Client{}
 	valuesReader := bytes.NewReader([]byte(values.Encode()))
 	var r *http.Request
 	r, _ = http.NewRequest("POST", apiRoot+endpoint, valuesReader)
@@ -88,7 +87,7 @@ func (c *USSD) Send(msg *USSDMessage) (*MessageResponse, error) {
 	r.Header.Add("Accept", "application/json")
 	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
-	resp, err := client.Do(r)
+	resp, err := c.client.HttpClient.Do(r)
 	defer resp.Body.Close()
 
 	if err != nil {

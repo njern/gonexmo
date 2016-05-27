@@ -201,8 +201,6 @@ func (c *SMS) Send(msg *SMSMessage) (*MessageResponse, error) {
 		msg.apiSecret = c.client.apiSecret
 	}
 
-	client := &http.Client{}
-
 	var r *http.Request
 	buf, err := json.Marshal(msg)
 	if err != nil {
@@ -214,7 +212,7 @@ func (c *SMS) Send(msg *SMSMessage) (*MessageResponse, error) {
 	r.Header.Add("Accept", "application/json")
 	r.Header.Add("Content-Type", "application/json")
 
-	resp, err := client.Do(r)
+	resp, err := c.client.HttpClient.Do(r)
 
 	if err != nil {
 		return nil, err
