@@ -9,5 +9,6 @@ use to see if your message went through, how much it cost, etc.
 package nexmo
 
 const (
-	apiRoot = "https://rest.nexmo.com"
+	apiRoot   = "https://rest.nexmo.com"
+	apiRootv2 = "https://api.nexmo.com"
 )

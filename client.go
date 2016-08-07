@@ -11,6 +11,7 @@ type Client struct {
 	Account    *Account
 	SMS        *SMS
 	USSD       *USSD
+	Verify     *Verification
 	HttpClient *http.Client
 	apiKey     string
 	apiSecret  string
@@ -35,6 +36,7 @@ func NewClientFromAPI(apiKey, apiSecret string) (*Client, error) {
 	c.Account = &Account{c}
 	c.SMS = &SMS{c}
 	c.USSD = &USSD{c}
+	c.Verify = &Verification{c}
 	c.HttpClient = http.DefaultClient
 	return c, nil
 }
