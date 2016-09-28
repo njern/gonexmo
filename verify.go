@@ -33,11 +33,14 @@ type VerifyMessageRequest struct {
 	apiKey    string
 	apiSecret string
 
-	Number   string `json:"number"`
-	Brand    string `json:"brand"`
-	SenderID string `json:"sender_id,omitempty"`
-	Country  string `json:"country,omitempty"`
-	Language string `json:"lg,omitempty"`
+	Number        string `json:"number"`
+	Brand         string `json:"brand"`
+	SenderID      string `json:"sender_id,omitempty"`
+	Country       string `json:"country,omitempty"`
+	Language      string `json:"lg,omitempty"`
+	CodeLength    int    `json:"code_length,omitempty"`
+	PINExpiry     int    `json:"pin_expiry,omitempty"`
+	NextEventWait int    `json:"next_event_wait,omitempty"`
 }
 
 // VerifyMessageResponse is the struct for the response from the verify
