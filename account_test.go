@@ -5,12 +5,12 @@ import (
 )
 
 func TestGetAccountBalance(t *testing.T) {
-	nexmo, err := NewClientFromAPI(API_KEY, API_SECRET)
+	client, err := NewClientFromAPI(API_KEY, API_SECRET)
 	if err != nil {
 		t.Error("Failed to create Client with error:", err)
 	}
 
-	balance, err := nexmo.Account.GetBalance()
+	balance, err := client.Account.GetBalance()
 	if err != nil {
 		t.Error("Failed to get account balance with error:", err)
 	}

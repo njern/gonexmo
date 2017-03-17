@@ -10,7 +10,7 @@ func testSend(t *testing.T) *VerifyMessageResponse {
 	if TEST_PHONE_NUMBER == "" {
 		t.Fatal("No test phone number specified. Please set NEXMO_NUM")
 	}
-	nexmo, err := NewClientFromAPI(API_KEY, API_SECRET)
+	client, err := NewClientFromAPI(API_KEY, API_SECRET)
 	if err != nil {
 		t.Error("Failed to create Client with error:", err)
 	}
@@ -21,7 +21,7 @@ func testSend(t *testing.T) *VerifyMessageResponse {
 		SenderID: TEST_FROM,
 	}
 
-	messageResponse, err := nexmo.Verify.Send(message)
+	messageResponse, err := client.Verify.Send(message)
 	if err != nil {
 		t.Error("Failed to send verification request with error:", err)
 	}
@@ -42,7 +42,7 @@ func TestSendCheck(t *testing.T) {
 	if TEST_PHONE_NUMBER == "" {
 		t.Fatal("No test phone number specified. Please set NEXMO_NUM")
 	}
-	nexmo, err := NewClientFromAPI(API_KEY, API_SECRET)
+	client, err := NewClientFromAPI(API_KEY, API_SECRET)
 	if err != nil {
 		t.Error("Failed to create Client with error:", err)
 	}
@@ -52,7 +52,7 @@ func TestSendCheck(t *testing.T) {
 		Code:      "1122", // Take a random code here, the number will not be verified properly though.
 	}
 
-	messageResponse, err := nexmo.Verify.Check(message)
+	messageResponse, err := client.Verify.Check(message)
 	if err != nil {
 		t.Error("Failed to send verification check request with error:", err)
 	}
@@ -68,7 +68,7 @@ func TestSendSearch(t *testing.T) {
 	if TEST_PHONE_NUMBER == "" {
 		t.Fatal("No test phone number specified. Please set NEXMO_NUM")
 	}
-	nexmo, err := NewClientFromAPI(API_KEY, API_SECRET)
+	client, err := NewClientFromAPI(API_KEY, API_SECRET)
 	if err != nil {
 		t.Error("Failed to create Client with error:", err)
 	}
@@ -77,7 +77,7 @@ func TestSendSearch(t *testing.T) {
 		RequestID: sendResponse.RequestID,
 	}
 
-	messageResponse, err := nexmo.Verify.Search(message)
+	messageResponse, err := client.Verify.Search(message)
 	if err != nil {
 		t.Error("Failed to send verification search request with error:", err)
 	}
