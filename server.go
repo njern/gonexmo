@@ -98,7 +98,7 @@ type DeliveryReceipt struct {
 }
 
 // NewDeliveryHandler creates a new http.HandlerFunc that can be used to listen
-// for deivery receipts from the Nexmo server. Any receipts received will be
+// for delivery receipts from the Nexmo server. Any receipts received will be
 // decoded nad passed to the out chan.
 func NewDeliveryHandler(out chan *DeliveryReceipt, verifyIPs bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {

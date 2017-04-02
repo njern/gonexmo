@@ -113,6 +113,7 @@ const (
 	ResponseNumberBarred
 	ResponsePartnerAcctBarred
 	ResponsePartnerQuotaExceeded
+	ResponseUnused //This is not used  yet.Left blank by  Nexmo for the time being.
 	ResponseRESTNotEnabled
 	ResponseMessageTooLong
 	ResponseCommunicationFailed
