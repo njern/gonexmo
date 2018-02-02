@@ -7,7 +7,9 @@
 package nexmo
 
 import (
+	"encoding/json"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 )
@@ -68,4 +70,58 @@ func TestFlashMessage(t *testing.T) {
 	}
 
 	t.Logf("Sent Flash SMS, response was: %#v\n", messageResponse)
+}
+
+func TestCallbackAttributeShouldBeFilled(t *testing.T) {
+	smsMessageWithCallbackString := `{"to": "5534999998888", "callback": "https://mycustomcallback.com.br"}`
+	smsMessageWithoutCallbackString := `{"to": "5534988887777"}`
+
+	smsMessageWithCallback := &SMSMessage{}
+	smsMessageWithoutCallback := &SMSMessage{}
+
+	errWithCallback := json.Unmarshal(smsMessageWithCallbackString.([]byte), smsMessageWithCallback)
+	errWithoutCallback := json.Unmarshal(smsMessageWithoutCallbackString.([]byte), smsMessageWithoutCallback)
+
+	if errWithCallback != nil || errWithoutCallback != nil {
+		t.Error("Failed to unmarshal Json string.")
+	}
+
+	if smsMessageWithCallback.Callback != "https://mycustomcallback.com.br" {
+		t.Error("Callback attribute wasn't filled as expected.")
+	}
+
+	if smsMessageWithoutCallback.Callback != "" {
+		t.Error("Callback attribute was filled when it shouldn't be.")
+	}
+
+	t.Log("Callback attribute works as it should be.")
+}
+
+func TestCallbackAttributeShouldBeOmited(t *testing.T) {
+	to := "5534999998888"
+	callback := "https://mycustomcallback.com.br"
+
+	smsMessageWithCallback := &SMSMessage{}
+	smsMessageWithCallback.To = to
+	smsMessageWithCallback.Callback = callback
+
+	smsMessageWithoutCallback := &SMSMessage{}
+	smsMessageWithoutCallback.To = to
+
+	smsMessageWithCallbackByte, errWithCallback := json.Marshal(smsMessageWithCallback)
+	smsMessageWithoutCallbackByte, errWithoutCallback := json.Marshal(smsMessageWithoutCallback)
+
+	if errWithCallback != nil || errWithoutCallback != nil {
+		t.Error("Failed to marshal SMSMessage.")
+	}
+
+	if !strings.Contains(str(smsMessageWithCallbackByte), callback) {
+		t.Error("Callback attribute was omited.")
+	}
+
+	if strings.Contains(str(smsMessageWithoutCallbackByte), "callback") {
+		t.Error("Callback attribute wasn't omited.")
+	}
+
+	t.Log("Callback attribute works as it should be.")
 }
