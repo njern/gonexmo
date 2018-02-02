@@ -8,7 +8,7 @@ gonexmo is a [Go](http://golang.org/) library tailored for sending SMS's with
 
 Assuming you have a working Go environment, installation is simple:
 
-    go get "gopkg.in/njern/gonexmo.v1"
+    go get "gopkg.in/njern/gonexmo.v2"
     
 You can take a look at the documentation locally with:
 
@@ -22,7 +22,7 @@ Nexmo account or receiving thousands of test SMS's - sorry :)
 
 
 ## Usage
-    import "gopkg.in/njern/gonexmo.v1"
+    import "gopkg.in/njern/gonexmo.v2"
 
     nexmoClient, _ := nexmo.NewClient("API_KEY_GOES_HERE", "API_SECRET_GOES_HERE")
 
@@ -45,7 +45,7 @@ Nexmo account or receiving thousands of test SMS's - sorry :)
 ## Receiving inbound messages
 
     import (
-        "gopkg.in/njern/gonexmo.v1"
+        "gopkg.in/njern/gonexmo.v2"
         "log"
         "net/http"
     )
