@@ -49,10 +49,10 @@ func (c *USSD) Send(msg *USSDMessage) (*MessageResponse, error) {
 
 	if len(msg.Text) <= 0 {
 		return nil, errors.New("Invalid message text")
-	} else {
-		// TODO(inhies): UTF8 and URL encode before setting
-		values.Set("text", msg.Text)
 	}
+
+	// TODO(inhies): UTF8 and URL encode before setting
+	values.Set("text", msg.Text)
 
 	if !c.client.useOauth {
 		values.Set("api_key", c.client.apiKey)
@@ -87,18 +87,21 @@ func (c *USSD) Send(msg *USSDMessage) (*MessageResponse, error) {
 	r.Header.Add("Accept", "application/json")
 	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
-	resp, err := c.client.HttpClient.Do(r)
-	defer resp.Body.Close()
-
+	resp, err := c.client.HTTPClient.Do(r)
 	if err != nil {
 		return nil, err
 	}
 
-	body, _ := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	err = json.Unmarshal(body, &messageResponse)
 	if err != nil {
 		return nil, err
 	}
+
 	return messageResponse, nil
 }

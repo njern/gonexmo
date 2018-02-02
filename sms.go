@@ -23,6 +23,11 @@ const (
 	VCard   = "vcard"
 )
 
+// MessageClass will be one of the following:
+//	- Flash
+//	- Standard
+//	- SIMData
+//	- Forward
 type MessageClass int
 
 // SMS message classes.
@@ -59,19 +64,21 @@ var messageClassMap = map[MessageClass]string{
 func (m MessageClass) String() string {
 	return messageClassMap[m]
 }
+
+// MarshalJSON implements the json.Marshaller interface
 func (m *SMSMessage) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		ApiKey    string `json:"api_key"`
-		ApiSecret string `json:"api_secret"`
+		APIKey    string `json:"api_key"`
+		APISecret string `json:"api_secret"`
 		SMSMessage
 	}{
-		ApiKey:     m.apiKey,
-		ApiSecret:  m.apiSecret,
+		APIKey:     m.apiKey,
+		APISecret:  m.apiSecret,
 		SMSMessage: *m,
 	})
 }
 
-// Type SMSMessage defines a single SMS message.
+// SMSMessage defines a single SMS message.
 type SMSMessage struct {
 	apiKey               string
 	apiSecret            string
@@ -96,12 +103,16 @@ type SMSMessage struct {
 	Validity int    `json:"validity,omitempty"` // Duration WAP Push is available in milliseconds
 }
 
+// A ResponseCode will be returned
+// whenever an SMSMessage is sent.
 type ResponseCode int
 
+// String implements the fmt.Stringer interface
 func (c ResponseCode) String() string {
 	return responseCodeMap[c]
 }
 
+// Possible response codes
 const (
 	ResponseSuccess ResponseCode = iota
 	ResponseThrottled
@@ -205,7 +216,7 @@ func (c *SMS) Send(msg *SMSMessage) (*MessageResponse, error) {
 	var r *http.Request
 	buf, err := json.Marshal(msg)
 	if err != nil {
-		return nil, errors.New("Invalid message struct. Cannot convert to json.")
+		return nil, errors.New("invalid message struct - unable to convert to JSON")
 	}
 	b := bytes.NewBuffer(buf)
 	r, _ = http.NewRequest("POST", apiRoot+"/sms/json", b)
@@ -213,7 +224,7 @@ func (c *SMS) Send(msg *SMSMessage) (*MessageResponse, error) {
 	r.Header.Add("Accept", "application/json")
 	r.Header.Add("Content-Type", "application/json")
 
-	resp, err := c.client.HttpClient.Do(r)
+	resp, err := c.client.HTTPClient.Do(r)
 
 	if err != nil {
 		return nil, err

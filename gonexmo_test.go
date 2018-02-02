@@ -7,36 +7,39 @@ import (
 )
 
 var (
-	API_KEY, API_SECRET, TEST_PHONE_NUMBER, TEST_FROM string
+	testAPIKey      string
+	testAPISecret   string
+	testPhoneNumber string
+	testFrom        string
 )
 
 func init() {
-	API_KEY = os.Getenv("NEXMO_KEY")
-	if API_KEY == "" {
+	testAPIKey = os.Getenv("NEXMO_KEY")
+	if testAPIKey == "" {
 		fmt.Println("No API key specified. Please set NEXMO_KEY")
 		os.Exit(1)
 	}
 
-	API_SECRET = os.Getenv("NEXMO_SECRET")
-	if API_SECRET == "" {
+	testAPISecret = os.Getenv("NEXMO_SECRET")
+	if testAPISecret == "" {
 		fmt.Println("No API secret specified. Please set NEXMO_SECRET")
 		os.Exit(1)
 	}
 
-	TEST_PHONE_NUMBER = os.Getenv("NEXMO_NUM")
+	testPhoneNumber = os.Getenv("NEXMO_NUM")
 
 	// Set a custom from value, or use the default. If you get error 15 when
 	// sending a message ("Illegal Sender Address - rejected") try setting this
 	// to your nexmo phone number.
-	TEST_FROM = os.Getenv("NEXMO_FROM")
-	if TEST_FROM == "" {
-		TEST_FROM = "gonexmo"
+	testFrom = os.Getenv("NEXMO_FROM")
+	if testFrom == "" {
+		testFrom = "gonexmo/test"
 	}
 }
 
 func TestNexmoCreation(t *testing.T) {
-	_, err := NewClientFromAPI(API_KEY, API_SECRET)
+	_, err := NewClient(testAPIKey, testAPISecret)
 	if err != nil {
-		t.Error("Failed to create Client with error:", err)
+		t.Error("failed to create Client with error:", err)
 	}
 }

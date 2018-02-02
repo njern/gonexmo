@@ -8,8 +8,13 @@ import (
 	"time"
 )
 
+// MessageType can be one of the following:
+//  - TextMessage
+//	- UnicodeMessage
+//	- BinaryMessage
 type MessageType int
 
+// Message types
 const (
 	TextMessage = iota + 1
 	UnicodeMessage
@@ -18,7 +23,7 @@ const (
 
 var messageTypeMap = map[string]MessageType{
 	"text":    TextMessage,
-	"unicdoe": UnicodeMessage,
+	"unicode": UnicodeMessage,
 	"binary":  BinaryMessage,
 }
 
@@ -32,11 +37,12 @@ func (m MessageType) String() string {
 	if m < 1 || m > 3 {
 		return "undefined"
 	}
+
 	return messageTypeIntMap[m]
 }
 
-// RecvdMessage represents a message that was received from the Nexmo API.
-type RecvdMessage struct {
+// ReceivedMessage represents a message that was received from the Nexmo API.
+type ReceivedMessage struct {
 	// Expected values are "text" or "binary".
 	Type MessageType
 
@@ -171,7 +177,7 @@ func NewDeliveryHandler(out chan *DeliveryReceipt, verifyIPs bool) http.HandlerF
 // NewMessageHandler creates a new http.HandlerFunc that can be used to listen
 // for new messages from the Nexmo server. Any new messages received will be
 // decoded and passed to the out chan.
-func NewMessageHandler(out chan *RecvdMessage, verifyIPs bool) http.HandlerFunc {
+func NewMessageHandler(out chan *ReceivedMessage, verifyIPs bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		if verifyIPs {
 			// Check if the request came from Nexmo
@@ -193,7 +199,7 @@ func NewMessageHandler(out chan *RecvdMessage, verifyIPs bool) http.HandlerFunc 
 
 		req.ParseForm()
 		// Decode the form data
-		m := new(RecvdMessage)
+		m := new(ReceivedMessage)
 		switch req.FormValue("type") {
 		case "text":
 			m.Text, err = url.QueryUnescape(req.FormValue("text"))

@@ -17,12 +17,12 @@ type Verification struct {
 // VerifyMessageRequest struct.
 func (m *VerifyMessageRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		ApiKey    string `json:"api_key"`
-		ApiSecret string `json:"api_secret"`
+		APIKey    string `json:"api_key"`
+		APISecret string `json:"api_secret"`
 		VerifyMessageRequest
 	}{
-		ApiKey:               m.apiKey,
-		ApiSecret:            m.apiSecret,
+		APIKey:               m.apiKey,
+		APISecret:            m.apiSecret,
 		VerifyMessageRequest: *m,
 	})
 }
@@ -72,8 +72,9 @@ func (c *Verification) Send(m *VerifyMessageRequest) (*VerifyMessageResponse, er
 	var r *http.Request
 	buf, err := json.Marshal(m)
 	if err != nil {
-		return nil, errors.New("Invalid message struct. Cannot convert to json.")
+		return nil, errors.New("invalid message struct - can not convert to JSON")
 	}
+
 	b := bytes.NewBuffer(buf)
 	r, err = http.NewRequest("POST", apiRootv2+"/verify/json", b)
 	if err != nil {
@@ -83,8 +84,7 @@ func (c *Verification) Send(m *VerifyMessageRequest) (*VerifyMessageResponse, er
 	r.Header.Add("Accept", "application/json")
 	r.Header.Add("Content-Type", "application/json")
 
-	resp, err := c.client.HttpClient.Do(r)
-
+	resp, err := c.client.HTTPClient.Do(r)
 	if err != nil {
 		return nil, err
 	}
@@ -102,18 +102,22 @@ func (c *Verification) Send(m *VerifyMessageRequest) (*VerifyMessageResponse, er
 	return verifyMessageResponse, nil
 }
 
+// MarshalJSON implements the json.Marshaler interface
 func (m *VerifyCheckRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		ApiKey    string `json:"api_key"`
-		ApiSecret string `json:"api_secret"`
+		APIKey    string `json:"api_key"`
+		APISecret string `json:"api_secret"`
 		VerifyCheckRequest
 	}{
-		ApiKey:             m.apiKey,
-		ApiSecret:          m.apiSecret,
+		APIKey:             m.apiKey,
+		APISecret:          m.apiSecret,
 		VerifyCheckRequest: *m,
 	})
 }
 
+// A VerifyCheckRequest is sent to Nexmo
+// when we want to verify a user has the
+// phone number he says he does.
 type VerifyCheckRequest struct {
 	apiKey    string
 	apiSecret string
@@ -123,6 +127,9 @@ type VerifyCheckRequest struct {
 	IPAddress string `json:"ip_address,omitempty"`
 }
 
+// A VerifyCheckResponse is received from Nexmo
+// after verifying a user has the
+// phone number he says he does.
 type VerifyCheckResponse struct {
 	Status    ResponseCode `json:"status,string"`
 	EventID   string       `json:"event_id"`
@@ -131,8 +138,8 @@ type VerifyCheckResponse struct {
 	ErrorText string       `json:"error_text"`
 }
 
-// Check is a request to send a code to the Nexmo and verify a code
-// for the request.
+// Check (by sending a PIN to a user) whether a user can be contacted at his given phone number.
+// https://developer.nexmo.com/api/verify#verify-check
 func (c *Verification) Check(m *VerifyCheckRequest) (*VerifyCheckResponse, error) {
 	if len(m.RequestID) == 0 {
 		return nil, errors.New("Invalid RequestID field specified")
@@ -152,7 +159,7 @@ func (c *Verification) Check(m *VerifyCheckRequest) (*VerifyCheckResponse, error
 	var r *http.Request
 	buf, err := json.Marshal(m)
 	if err != nil {
-		return nil, errors.New("Invalid message struct. Cannot convert to json.")
+		return nil, errors.New("invalid message struct - unable to convert to JSON")
 	}
 	b := bytes.NewBuffer(buf)
 	r, err = http.NewRequest("POST", apiRootv2+"/verify/check/json", b)
@@ -163,11 +170,11 @@ func (c *Verification) Check(m *VerifyCheckRequest) (*VerifyCheckResponse, error
 	r.Header.Add("Accept", "application/json")
 	r.Header.Add("Content-Type", "application/json")
 
-	resp, err := c.client.HttpClient.Do(r)
-
+	resp, err := c.client.HTTPClient.Do(r)
 	if err != nil {
 		return nil, err
 	}
+
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
@@ -182,18 +189,22 @@ func (c *Verification) Check(m *VerifyCheckRequest) (*VerifyCheckResponse, error
 	return verifyCheckResponse, nil
 }
 
+// MarshalJSON implements the json.Marshaler interface
 func (m *VerifySearchRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		ApiKey    string `json:"api_key"`
-		ApiSecret string `json:"api_secret"`
+		APIKey    string `json:"api_key"`
+		APISecret string `json:"api_secret"`
 		VerifySearchRequest
 	}{
-		ApiKey:              m.apiKey,
-		ApiSecret:           m.apiSecret,
+		APIKey:              m.apiKey,
+		APISecret:           m.apiSecret,
 		VerifySearchRequest: *m,
 	})
 }
 
+// A VerifySearchRequest is sent to Nexmo
+// when searching for the status of a Verify
+// request.
 type VerifySearchRequest struct {
 	apiKey    string
 	apiSecret string
@@ -201,30 +212,31 @@ type VerifySearchRequest struct {
 	RequestID string `json:"request_id,omitempty"`
 }
 
+// A VerifySearchResponse is received from Nexmo in
+// response to a VerifySearchRequest
 type VerifySearchResponse struct {
-	RequestID      string   `json:"request_id"`
-	AccountID      string   `json:"account_id"`
-	Number         string   `json:"number"`
-	SenderID       string   `json:"sender_id"`
-	DateSubmitted  string   `json:"date_submitted"`
-	DateFinalized  string   `json:"date_finalized"`
-	FirstEventDate string   `json:"first_event_date"`
-	LastEventDate  string   `json:"last_event_date"`
-	Status         string   `json:"status"`
-	Checks         []Checks `json:"checks"`
-	Price          string   `json:"price"`
-	Currency       string   `json:"currency"`
-	ErrorText      string   `json:"error_text"`
-}
-
-type Checks struct {
-	DateReceived string `json:"date_received"`
-	Code         string `json:"code"`
-	Status       string `json:"status"`
-	IPAddress    string `json:"ip_address,omitempty"`
+	RequestID      string `json:"request_id"`
+	AccountID      string `json:"account_id"`
+	Number         string `json:"number"`
+	SenderID       string `json:"sender_id"`
+	DateSubmitted  string `json:"date_submitted"`
+	DateFinalized  string `json:"date_finalized"`
+	FirstEventDate string `json:"first_event_date"`
+	LastEventDate  string `json:"last_event_date"`
+	Status         string `json:"status"`
+	Checks         []struct {
+		DateReceived string `json:"date_received"`
+		Code         string `json:"code"`
+		Status       string `json:"status"`
+		IPAddress    string `json:"ip_address,omitempty"`
+	} `json:"checks"`
+	Price     string `json:"price"`
+	Currency  string `json:"currency"`
+	ErrorText string `json:"error_text"`
 }
 
 // Search sends the verify search request to Nexmo.
+// https://developer.nexmo.com/api/verify#verify-search
 func (c *Verification) Search(m *VerifySearchRequest) (*VerifySearchResponse, error) {
 	var verifySearchResponse *VerifySearchResponse
 
@@ -236,8 +248,9 @@ func (c *Verification) Search(m *VerifySearchRequest) (*VerifySearchResponse, er
 	var r *http.Request
 	buf, err := json.Marshal(m)
 	if err != nil {
-		return nil, errors.New("Invalid message struct. Cannot convert to json.")
+		return nil, errors.New("invalid message struct - unable to convert to JSON")
 	}
+
 	b := bytes.NewBuffer(buf)
 	r, err = http.NewRequest("POST", apiRootv2+"/verify/search/json", b)
 	if err != nil {
@@ -247,13 +260,12 @@ func (c *Verification) Search(m *VerifySearchRequest) (*VerifySearchResponse, er
 	r.Header.Add("Accept", "application/json")
 	r.Header.Add("Content-Type", "application/json")
 
-	resp, err := c.client.HttpClient.Do(r)
-
+	resp, err := c.client.HTTPClient.Do(r)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
+	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
@@ -263,5 +275,6 @@ func (c *Verification) Search(m *VerifySearchRequest) (*VerifySearchResponse, er
 	if err != nil {
 		return nil, err
 	}
+
 	return verifySearchResponse, nil
 }

@@ -10,13 +10,13 @@ var masks = []string{
 	"119.81.44.0/28",
 }
 
-var subnets []*net.IPNet
+var subnets []net.IPNet
 
 func init() {
-	subnets = make([]*net.IPNet, len(masks))
+	subnets = make([]net.IPNet, len(masks))
 	for i, mask := range masks {
 		_, net, _ := net.ParseCIDR(mask)
-		subnets[i] = net
+		subnets[i] = *net
 	}
 }
 

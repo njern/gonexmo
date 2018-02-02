@@ -5,22 +5,22 @@ import (
 	"net/http"
 )
 
-// Client encapsulates the Nexmo functions - must be created with
-// NewClientFromAPI()
+// Client encapsulates the Nexmo functions.
+// Should be created with NewClient()
 type Client struct {
 	Account    *Account
 	SMS        *SMS
 	USSD       *USSD
 	Verify     *Verification
-	HttpClient *http.Client
+	HTTPClient *http.Client
 	apiKey     string
 	apiSecret  string
 	useOauth   bool
 }
 
-// NewClientFromAPI creates a new Client type with the
+// NewClient creates a new Client type with the
 // provided API key / API secret.
-func NewClientFromAPI(apiKey, apiSecret string) (*Client, error) {
+func NewClient(apiKey, apiSecret string) (*Client, error) {
 	if apiKey == "" {
 		return nil, errors.New("apiKey can not be empty")
 	} else if apiSecret == "" {
@@ -37,6 +37,6 @@ func NewClientFromAPI(apiKey, apiSecret string) (*Client, error) {
 	c.SMS = &SMS{c}
 	c.USSD = &USSD{c}
 	c.Verify = &Verification{c}
-	c.HttpClient = http.DefaultClient
+	c.HTTPClient = http.DefaultClient
 	return c, nil
 }

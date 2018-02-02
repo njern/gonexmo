@@ -30,7 +30,7 @@ func (nexmo *Account) GetBalance() (float64, error) {
 
 	r.Header.Add("Accept", "application/json")
 
-	resp, err := nexmo.client.HttpClient.Do(r)
+	resp, err := nexmo.client.HTTPClient.Do(r)
 	if err != nil {
 		return 0.0, err
 	}

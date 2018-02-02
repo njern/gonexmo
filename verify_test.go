@@ -7,23 +7,23 @@ import (
 
 func testSend(t *testing.T) *VerifyMessageResponse {
 	time.Sleep(1 * time.Second) // Sleep 1 second due to API limitation
-	if TEST_PHONE_NUMBER == "" {
-		t.Fatal("No test phone number specified. Please set NEXMO_NUM")
+	if testPhoneNumber == "" {
+		t.Fatal("no test phone number specified. Please set NEXMO_NUM")
 	}
-	client, err := NewClientFromAPI(API_KEY, API_SECRET)
+	client, err := NewClient(testAPIKey, testAPISecret)
 	if err != nil {
-		t.Error("Failed to create Client with error:", err)
+		t.Error("failed to create Client with error:", err)
 	}
 
 	message := &VerifyMessageRequest{
-		Number:   TEST_PHONE_NUMBER,
-		Brand:    TEST_FROM,
-		SenderID: TEST_FROM,
+		Number:   testPhoneNumber,
+		Brand:    testFrom,
+		SenderID: testFrom,
 	}
 
 	messageResponse, err := client.Verify.Send(message)
 	if err != nil {
-		t.Error("Failed to send verification request with error:", err)
+		t.Error("failed to send verification request with error:", err)
 	}
 
 	return messageResponse
@@ -35,14 +35,14 @@ func TestSend(t *testing.T) {
 }
 
 func TestSendCheck(t *testing.T) {
-	// We need the request id, so we have to run this first.
+	// We need the request ID, so we have to run this first.
 	sendResponse := testSend(t)
 
 	time.Sleep(1 * time.Second) // Sleep 1 second due to API limitation
-	if TEST_PHONE_NUMBER == "" {
+	if testPhoneNumber == "" {
 		t.Fatal("No test phone number specified. Please set NEXMO_NUM")
 	}
-	client, err := NewClientFromAPI(API_KEY, API_SECRET)
+	client, err := NewClient(testAPIKey, testAPISecret)
 	if err != nil {
 		t.Error("Failed to create Client with error:", err)
 	}
@@ -65,10 +65,10 @@ func TestSendSearch(t *testing.T) {
 	sendResponse := testSend(t)
 
 	time.Sleep(1 * time.Second) // Sleep 1 second due to API limitation
-	if TEST_PHONE_NUMBER == "" {
+	if testPhoneNumber == "" {
 		t.Fatal("No test phone number specified. Please set NEXMO_NUM")
 	}
-	client, err := NewClientFromAPI(API_KEY, API_SECRET)
+	client, err := NewClient(testAPIKey, testAPISecret)
 	if err != nil {
 		t.Error("Failed to create Client with error:", err)
 	}
