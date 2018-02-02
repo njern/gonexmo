@@ -24,7 +24,7 @@ Nexmo account or receiving thousands of test SMS's - sorry :)
 ## Usage
     import "gopkg.in/njern/gonexmo.v1"
 
-    nexmoClient, _ := nexmo.NewClientFromAPI("API_KEY_GOES_HERE", "API_SECRET_GOES_HERE")
+    nexmoClient, _ := nexmo.NewClient("API_KEY_GOES_HERE", "API_SECRET_GOES_HERE")
 
     // Test if it works by retrieving your account balance
     balance, err := nexmoClient.Account.GetBalance()
