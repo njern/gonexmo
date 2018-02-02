@@ -93,6 +93,7 @@ type SMSMessage struct {
 	VCal                 string       `json:"vcal,omitempty"`              // Optional.
 	TTL                  int          `json:"ttl,omitempty"`               // Optional.
 	Class                MessageClass `json:"message-class,omitempty"`     // Optional.
+	Callback             string       `json:"callback,omitempty"`          // Optional.
 	Body                 []byte       `json:"body,omitempty"`              // Required for Binary message.
 	UDH                  []byte       `json:"udh,omitempty"`               // Required for Binary message.
 
