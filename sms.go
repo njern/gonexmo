@@ -19,8 +19,6 @@ const (
 	Binary  = "binary"
 	WAPPush = "wappush"
 	Unicode = "unicode"
-	VCal    = "vcal"
-	VCard   = "vcard"
 )
 
 // MessageClass will be one of the following:
@@ -180,15 +178,15 @@ type MessageResponse struct {
 // Send the message using the specified SMS client.
 func (c *SMS) Send(msg *SMSMessage) (*MessageResponse, error) {
 	if len(msg.From) <= 0 {
-		return nil, errors.New("Invalid From field specified")
+		return nil, errors.New("invalid From field specified")
 	}
 
 	if len(msg.To) <= 0 {
-		return nil, errors.New("Invalid To field specified")
+		return nil, errors.New("invalid To field specified")
 	}
 
 	if len(msg.ClientReference) > 40 {
-		return nil, errors.New("Client reference too long")
+		return nil, errors.New("client reference too long")
 	}
 
 	var messageResponse *MessageResponse
@@ -197,16 +195,16 @@ func (c *SMS) Send(msg *SMSMessage) (*MessageResponse, error) {
 	case Text:
 	case Unicode:
 		if len(msg.Text) <= 0 {
-			return nil, errors.New("Invalid message text")
+			return nil, errors.New("invalid message text")
 		}
 	case Binary:
 		if len(msg.UDH) == 0 || len(msg.Body) == 0 {
-			return nil, errors.New("Invalid binary message")
+			return nil, errors.New("invalid binary message")
 		}
 
 	case WAPPush:
 		if len(msg.URL) == 0 || len(msg.Title) == 0 {
-			return nil, errors.New("Invalid WAP Push parameters")
+			return nil, errors.New("invalid WAP Push parameters")
 		}
 	}
 	if !c.client.useOauth {
@@ -226,11 +224,15 @@ func (c *SMS) Send(msg *SMSMessage) (*MessageResponse, error) {
 	r.Header.Add("Content-Type", "application/json")
 
 	resp, err := c.client.HTTPClient.Do(r)
-
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+
+	defer func() {
+		if resp != nil && resp.Body != nil {
+			_ = resp.Body.Close()
+		}
+	}()
 
 	body, _ := ioutil.ReadAll(resp.Body)
 

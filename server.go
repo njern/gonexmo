@@ -21,12 +21,6 @@ const (
 	BinaryMessage
 )
 
-var messageTypeMap = map[string]MessageType{
-	"text":    TextMessage,
-	"unicode": UnicodeMessage,
-	"binary":  BinaryMessage,
-}
-
 var messageTypeIntMap = map[MessageType]string{
 	TextMessage:    "text",
 	UnicodeMessage: "unicode",
@@ -61,12 +55,11 @@ type ReceivedMessage struct {
 	// Time when Nexmo started to push the message to you.
 	Timestamp time.Time
 
-	// Parameters for conactenated messages:
+	// Parameters for concatenated messages:
 	Concatenated bool // Set to true if a MO concatenated message is detected.
 	Concat       struct {
 
-		// Transaction reference. All message parts will share the same
-		//transaction reference.
+		// Transaction reference. All message parts will share the same transaction reference.
 		Reference string
 
 		// Total number of parts in this concatenated message set.
@@ -117,7 +110,6 @@ func NewDeliveryHandler(out chan *DeliveryReceipt, verifyIPs bool) http.HandlerF
 			}
 		}
 
-		var err error
 		// Check if the query is empty. If it is, it's just Nexmo
 		// making sure our service is up, so we don't want to return
 		// an error.
@@ -125,7 +117,7 @@ func NewDeliveryHandler(out chan *DeliveryReceipt, verifyIPs bool) http.HandlerF
 			return
 		}
 
-		req.ParseForm()
+		_ = req.ParseForm()
 		// Decode the form data
 		m := new(DeliveryReceipt)
 
@@ -197,7 +189,7 @@ func NewMessageHandler(out chan *ReceivedMessage, verifyIPs bool) http.HandlerFu
 			return
 		}
 
-		req.ParseForm()
+		_ = req.ParseForm()
 		// Decode the form data
 		m := new(ReceivedMessage)
 		switch req.FormValue("type") {

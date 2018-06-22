@@ -20,17 +20,17 @@ func TestSendTextMessage(t *testing.T) {
 	// TODO(inhies): Create an internal rate limiting system and do away with
 	// this hacky 1 second delay.
 	time.Sleep(1 * time.Second) // Sleep 1 second due to API limitation
-	if TEST_PHONE_NUMBER == "" {
+	if testPhoneNumber == "" {
 		t.Fatal("No test phone number specified. Please set NEXMO_NUM")
 	}
-	nexmo, err := NewClientFromAPI(API_KEY, API_SECRET)
+	nexmo, err := NewClient(testAPIKey, testAPISecret)
 	if err != nil {
 		t.Error("Failed to create Client with error:", err)
 	}
 
 	message := &SMSMessage{
-		From:            TEST_FROM,
-		To:              TEST_PHONE_NUMBER,
+		From:            testFrom,
+		To:              testPhoneNumber,
 		Type:            Text,
 		Text:            "Gonexmo test SMS message, sent at " + time.Now().String(),
 		ClientReference: "gonexmo-test " + strconv.FormatInt(time.Now().Unix(), 10),
@@ -47,17 +47,17 @@ func TestSendTextMessage(t *testing.T) {
 
 func TestFlashMessage(t *testing.T) {
 	time.Sleep(1 * time.Second) // Sleep 1 second due to API limitation
-	if TEST_PHONE_NUMBER == "" {
+	if testPhoneNumber == "" {
 		t.Fatal("No test phone number specified. Please set NEXMO_NUM")
 	}
-	nexmo, err := NewClientFromAPI(API_KEY, API_SECRET)
+	nexmo, err := NewClient(testAPIKey, testAPISecret)
 	if err != nil {
 		t.Error("Failed to create Client with error:", err)
 	}
 
 	message := &SMSMessage{
-		From:            TEST_FROM,
-		To:              TEST_PHONE_NUMBER,
+		From:            testFrom,
+		To:              testPhoneNumber,
 		Type:            Text,
 		Text:            "Gonexmo test flash SMS message, sent at " + time.Now().String(),
 		ClientReference: "gonexmo-test " + strconv.FormatInt(time.Now().Unix(), 10),
@@ -79,8 +79,8 @@ func TestCallbackAttributeShouldBeFilled(t *testing.T) {
 	smsMessageWithCallback := &SMSMessage{}
 	smsMessageWithoutCallback := &SMSMessage{}
 
-	errWithCallback := json.Unmarshal(smsMessageWithCallbackString.([]byte), smsMessageWithCallback)
-	errWithoutCallback := json.Unmarshal(smsMessageWithoutCallbackString.([]byte), smsMessageWithoutCallback)
+	errWithCallback := json.Unmarshal([]byte(smsMessageWithCallbackString), smsMessageWithCallback)
+	errWithoutCallback := json.Unmarshal([]byte(smsMessageWithoutCallbackString), smsMessageWithoutCallback)
 
 	if errWithCallback != nil || errWithoutCallback != nil {
 		t.Error("Failed to unmarshal Json string.")
@@ -115,11 +115,11 @@ func TestCallbackAttributeShouldBeOmited(t *testing.T) {
 		t.Error("Failed to marshal SMSMessage.")
 	}
 
-	if !strings.Contains(str(smsMessageWithCallbackByte), callback) {
+	if !strings.Contains(string(smsMessageWithCallbackByte), callback) {
 		t.Error("Callback attribute was omited.")
 	}
 
-	if strings.Contains(str(smsMessageWithoutCallbackByte), "callback") {
+	if strings.Contains(string(smsMessageWithoutCallbackByte), "callback") {
 		t.Error("Callback attribute wasn't omited.")
 	}
 

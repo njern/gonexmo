@@ -32,15 +32,15 @@ type USSDMessage struct {
 // Send the message using the specified USSD client.
 func (c *USSD) Send(msg *USSDMessage) (*MessageResponse, error) {
 	if len(msg.From) <= 0 {
-		return nil, errors.New("Invalid From field specified")
+		return nil, errors.New("invalid From field specified")
 	}
 
 	if len(msg.To) <= 0 {
-		return nil, errors.New("Invalid To field specified")
+		return nil, errors.New("invalid To field specified")
 	}
 
 	if len(msg.ClientReference) > 40 {
-		return nil, errors.New("Client reference too long")
+		return nil, errors.New("client reference too long")
 	}
 
 	var messageResponse *MessageResponse
@@ -48,7 +48,7 @@ func (c *USSD) Send(msg *USSDMessage) (*MessageResponse, error) {
 	values := make(url.Values)
 
 	if len(msg.Text) <= 0 {
-		return nil, errors.New("Invalid message text")
+		return nil, errors.New("invalid message text")
 	}
 
 	// TODO(inhies): UTF8 and URL encode before setting
@@ -92,7 +92,12 @@ func (c *USSD) Send(msg *USSDMessage) (*MessageResponse, error) {
 		return nil, err
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if resp != nil && resp.Body != nil {
+			_ = resp.Body.Close()
+		}
+	}()
+
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
