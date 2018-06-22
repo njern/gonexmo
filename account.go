@@ -37,7 +37,7 @@ func (nexmo *Account) GetBalance() (float64, error) {
 
 	defer func() {
 		if resp != nil && resp.Body != nil {
-			resp.Body.Close()
+			_ = resp.Body.Close()
 		}
 	}()
 

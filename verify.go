@@ -88,7 +88,12 @@ func (c *Verification) Send(m *VerifyMessageRequest) (*VerifyMessageResponse, er
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+
+	defer func() {
+		if resp != nil && resp.Body != nil {
+			_ = resp.Body.Close()
+		}
+	}()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -175,7 +180,11 @@ func (c *Verification) Check(m *VerifyCheckRequest) (*VerifyCheckResponse, error
 		return nil, err
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if resp != nil && resp.Body != nil {
+			_ = resp.Body.Close()
+		}
+	}()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -265,7 +274,12 @@ func (c *Verification) Search(m *VerifySearchRequest) (*VerifySearchResponse, er
 		return nil, err
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if resp != nil && resp.Body != nil {
+			_ = resp.Body.Close()
+		}
+	}()
+
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err

@@ -19,8 +19,6 @@ const (
 	Binary  = "binary"
 	WAPPush = "wappush"
 	Unicode = "unicode"
-	VCal    = "vcal"
-	VCard   = "vcard"
 )
 
 // MessageClass will be one of the following:
@@ -226,11 +224,15 @@ func (c *SMS) Send(msg *SMSMessage) (*MessageResponse, error) {
 	r.Header.Add("Content-Type", "application/json")
 
 	resp, err := c.client.HTTPClient.Do(r)
-
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+
+	defer func() {
+		if resp != nil && resp.Body != nil {
+			_ = resp.Body.Close()
+		}
+	}()
 
 	body, _ := ioutil.ReadAll(resp.Body)
 
