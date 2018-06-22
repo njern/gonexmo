@@ -14,16 +14,16 @@ import (
 
 func TestUssdPushMessage(t *testing.T) {
 	time.Sleep(1 * time.Second) // Sleep 1 second due to API limitation
-	if TEST_PHONE_NUMBER == "" {
+	if testPhoneNumber == "" {
 		t.Fatal("No test phone number specified. Please set NEXMO_NUM")
 	}
-	nexmo, err := NewClientFromAPI(API_KEY, API_SECRET)
+	nexmo, err := NewClient(testAPIKey, testAPISecret)
 	if err != nil {
 		t.Error("Failed to create Client with error:", err)
 	}
 	message := &USSDMessage{
-		From:            TEST_FROM,
-		To:              TEST_PHONE_NUMBER,
+		From:            testFrom,
+		To:              testPhoneNumber,
 		Text:            "Gonexmo test USSD push message, sent at " + time.Now().String(),
 		ClientReference: "gonexmo-test " + strconv.FormatInt(time.Now().Unix(), 10),
 	}
@@ -38,17 +38,17 @@ func TestUssdPushMessage(t *testing.T) {
 
 func TestUssdPromptMessage(t *testing.T) {
 	time.Sleep(1 * time.Second) // Sleep 1 second due to API limitation
-	if TEST_PHONE_NUMBER == "" {
+	if testPhoneNumber == "" {
 		t.Fatal("No test phone number specified. Please set NEXMO_NUM")
 	}
-	nexmo, err := NewClientFromAPI(API_KEY, API_SECRET)
+	nexmo, err := NewClient(testAPIKey, testAPISecret)
 	if err != nil {
 		t.Error("Failed to create Client with error:", err)
 	}
 
 	message := &USSDMessage{
-		From:            TEST_FROM,
-		To:              TEST_PHONE_NUMBER,
+		From:            testFrom,
+		To:              testPhoneNumber,
 		Text:            "Gonexmo test USSD prompt message, sent at " + time.Now().String(),
 		ClientReference: "gonexmo-test " + strconv.FormatInt(time.Now().Unix(), 10),
 		Prompt:          true,

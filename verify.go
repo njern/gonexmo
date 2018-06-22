@@ -55,11 +55,11 @@ type VerifyMessageResponse struct {
 // response.
 func (c *Verification) Send(m *VerifyMessageRequest) (*VerifyMessageResponse, error) {
 	if len(m.Number) == 0 {
-		return nil, errors.New("Invalid Number field specified")
+		return nil, errors.New("invalid Number field specified")
 	}
 
 	if len(m.Brand) == 0 {
-		return nil, errors.New("Invalid Brand field specified")
+		return nil, errors.New("invalid Brand field specified")
 	}
 
 	var verifyMessageResponse *VerifyMessageResponse
