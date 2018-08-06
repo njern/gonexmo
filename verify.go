@@ -278,3 +278,87 @@ func (c *Verification) Search(m *VerifySearchRequest) (*VerifySearchResponse, er
 
 	return verifySearchResponse, nil
 }
+
+// MarshalJSON implements the json.Marshaler interface
+func (m *VerifyControlRequest) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		APIKey    string `json:"api_key"`
+		APISecret string `json:"api_secret"`
+		VerifyControlRequest
+	}{
+		APIKey:               m.apiKey,
+		APISecret:            m.apiSecret,
+		VerifyControlRequest: *m,
+	})
+}
+
+// VerifyControlRequest is the request struct for control verificaion such as cancel verification request
+// and trigger next verification process
+type VerifyControlRequest struct {
+	apiKey    string
+	apiSecret string
+
+	RequestID string `json:"request_id"`
+	Command   string `json:"cmd"`
+}
+
+// VerifyControlResponse is received from Nexmo in
+// response to a VerifyControlRequest
+type VerifyControlResponse struct {
+	Status    ResponseCode `json:"status,string"`
+	Command   string       `json:"command"`
+	ErrorText string       `json:"error_text"`
+}
+
+// Control the progress of Verify Requests
+// https://developer.nexmo.com/api/verify#verify-control
+func (c *Verification) Control(m *VerifyControlRequest) (*VerifyControlResponse, error) {
+	if len(m.RequestID) == 0 {
+		return nil, errors.New("Invalid Request ID field specified")
+	}
+
+	if len(m.Command) == 0 {
+		return nil, errors.New("Invalid Command field specified")
+	}
+
+	var verifyControlResponse *VerifyControlResponse
+
+	if !c.client.useOauth {
+		m.apiKey = c.client.apiKey
+		m.apiSecret = c.client.apiSecret
+	}
+
+	var r *http.Request
+	buf, err := json.Marshal(m)
+	if err != nil {
+		return nil, errors.New("invalid message struct - unable to convert to JSON")
+	}
+
+	b := bytes.NewBuffer(buf)
+	r, err = http.NewRequest("POST", apiRootv2+"/verify/control/json", b)
+	if err != nil {
+		return nil, err
+	}
+
+	r.Header.Add("Accept", "application/json")
+	r.Header.Add("Content-Type", "application/json")
+
+	resp, err := c.client.HTTPClient.Do(r)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(body, &verifyControlResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	return verifyControlResponse, nil
+}
