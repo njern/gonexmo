@@ -125,36 +125,53 @@ const (
 	ResponseNumberBarred
 	ResponsePartnerAcctBarred
 	ResponsePartnerQuotaExceeded
-	ResponseUnused //This is not used  yet.Left blank by  Nexmo for the time being.
+	ResponseTooManyBinds
 	ResponseRESTNotEnabled
 	ResponseMessageTooLong
-	ResponseCommunicationFailed
+	ResponseBlank13 //  Unused error code (13) by Nexmo
 	ResponseInvalidSignature
 	ResponseInvalidSenderAddress
-	ResponseInvalidTTL
-	ResponseFacilityNotAllowed
-	ResponseInvalidMessageClass
+	ResponseBlank16 //  Unused error code (16) by Nexmo
+	ResponseBlank17 //  Unused error code (17) by Nexmo
+	ResponseBlank18 //  Unused error code (18) by Nexmo
+	ResponseBlank19 //  Unused error code (19) by Nexmo
+	ResponseBlank20 //  Unused error code (20) by Nexmo
+	ResponseBlank21 //  Unused error code (21) by Nexmo
+	ResponseInvalidNetworkCode
+	ResponseInvalidCallbackURL
+	ResponseBlank24 //  Unused error code (24) by Nexmo
+	ResponseBlank25 //  Unused error code (25) by Nexmo
+	ResponseBlank26 //  Unused error code (26) by Nexmo
+	ResponseBlank27 //  Unused error code (27) by Nexmo
+	ResponseBlank28 //  Unused error code (28) by Nexmo
+	ResponseNonWhitelistedDestination
+	ResponseBlank30 //  Unused error code (30) by Nexmo
+	ResponseBlank31 //  Unused error code (31) by Nexmo
+	ResponseSignatureAndAPISecretDisallowed
+	ResponseNumberDeactivated
 )
 
 var responseCodeMap = map[ResponseCode]string{
-	ResponseSuccess:              "Success",
-	ResponseThrottled:            "Throttled",
-	ResponseMissingParams:        "Missing params",
-	ResponseInvalidParams:        "Invalid params",
-	ResponseInvalidCredentials:   "Invalid credentials",
-	ResponseInternalError:        "Internal error",
-	ResponseInvalidMessage:       "Invalid message",
-	ResponseNumberBarred:         "Number barred",
-	ResponsePartnerAcctBarred:    "Partner account barred",
-	ResponsePartnerQuotaExceeded: "Partner quota exceeded",
-	ResponseRESTNotEnabled:       "Account not enabled for REST",
-	ResponseMessageTooLong:       "Message too long",
-	ResponseCommunicationFailed:  "Communication failed",
-	ResponseInvalidSignature:     "Invalid signature",
-	ResponseInvalidSenderAddress: "Invalid sender address",
-	ResponseInvalidTTL:           "Invalid TTL",
-	ResponseFacilityNotAllowed:   "Facility not allowed",
-	ResponseInvalidMessageClass:  "Invalid message class",
+	ResponseSuccess:                         "Success",
+	ResponseThrottled:                       "Throttled",
+	ResponseMissingParams:                   "Missing params",
+	ResponseInvalidParams:                   "Invalid params",
+	ResponseInvalidCredentials:              "Invalid credentials",
+	ResponseInternalError:                   "Internal error",
+	ResponseInvalidMessage:                  "Invalid message",
+	ResponseNumberBarred:                    "Number barred",
+	ResponsePartnerAcctBarred:               "Partner account barred",
+	ResponsePartnerQuotaExceeded:            "Partner quota exceeded",
+	ResponseTooManyBinds:                    "Too many simultaneous binds",
+	ResponseRESTNotEnabled:                  "Account not enabled for REST",
+	ResponseMessageTooLong:                  "Message too long",
+	ResponseInvalidSignature:                "Invalid signature",
+	ResponseInvalidSenderAddress:            "Invalid sender address",
+	ResponseInvalidNetworkCode:              "Invalid network code supplied",
+	ResponseInvalidCallbackURL:              "Supplied callback URL not a valid URL",
+	ResponseNonWhitelistedDestination:       "Your account is in demo mode and you must whitelist each number individually",
+	ResponseSignatureAndAPISecretDisallowed: "Signed request must not present an `api_secret`",
+	ResponseNumberDeactivated:               "Destination number has been deactivated",
 }
 
 // MessageReport is the "status report" for a single SMS sent via the Nexmo API
