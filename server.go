@@ -104,6 +104,8 @@ type DeliveryReceipt struct {
 	ClientReference string    `json:"client-ref"`
 }
 
+// ParseReceivedMessage unmarshals and processes the form data in a Nexmo request
+// and returns a DeliveryReceipt struct.
 func ParseDeliveryReceipt(req *http.Request) (*DeliveryReceipt, error) {
 	err := req.ParseForm()
 	if err != nil {
@@ -183,6 +185,8 @@ func NewDeliveryHandler(out chan *DeliveryReceipt, verifyIPs bool) http.HandlerF
 	}
 }
 
+// ParseReceivedMessage unmarshals and processes the form data in a Nexmo request
+// and returns a ReceivedMessage struct.
 func ParseReceivedMessage(req *http.Request) (*ReceivedMessage, error) {
 	err := req.ParseForm()
 	if err != nil {
