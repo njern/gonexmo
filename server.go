@@ -1,6 +1,7 @@
 package nexmo
 
 import (
+	"fmt"
 	"net"
 	"net/http"
 	"net/url"
@@ -103,9 +104,56 @@ type DeliveryReceipt struct {
 	ClientReference string    `json:"client-ref"`
 }
 
+func ParseDeliveryReceipt(req *http.Request) (*DeliveryReceipt, error) {
+	err := req.ParseForm()
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse form data: %v", err)
+	}
+
+	// Decode the form data
+	m := new(DeliveryReceipt)
+
+	m.To = req.FormValue("to")
+	m.NetworkCode = req.FormValue("network-code")
+	m.MessageID = req.FormValue("messageId")
+	m.MSISDN = req.FormValue("msisdn")
+	m.Status = req.FormValue("status")
+	m.ErrorCode = req.FormValue("err-code")
+	m.Price = req.FormValue("price")
+	m.ClientReference = req.FormValue("client-ref")
+
+	t, err := url.QueryUnescape(req.FormValue("scts"))
+	if err != nil {
+		return nil, fmt.Errorf("failed to unescape field 'scts': %v", err)
+	}
+
+	// Convert the timestamp to a time.Time.
+	timestamp, err := time.Parse("0601021504", t)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse timestamp for field 'scts': %v", err)
+	}
+
+	m.SCTS = timestamp
+
+	t, err = url.QueryUnescape(req.FormValue("message-timestamp"))
+	if err != nil {
+		return nil, fmt.Errorf("failed to unescape field 'message-timestamp': %v", err)
+	}
+
+	// Convert the timestamp to a time.Time.
+	timestamp, err = time.Parse("2006-01-02 15:04:05", t)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse timestamp for field 'message-timestamp': %v", err)
+	}
+
+	m.Timestamp = timestamp
+
+	return m, nil
+}
+
 // NewDeliveryHandler creates a new http.HandlerFunc that can be used to listen
 // for delivery receipts from the Nexmo server. Any receipts received will be
-// decoded nad passed to the out chan.
+// decoded and passed to the out chan.
 func NewDeliveryHandler(out chan *DeliveryReceipt, verifyIPs bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		if verifyIPs {
@@ -117,7 +165,6 @@ func NewDeliveryHandler(out chan *DeliveryReceipt, verifyIPs bool) http.HandlerF
 			}
 		}
 
-		var err error
 		// Check if the query is empty. If it is, it's just Nexmo
 		// making sure our service is up, so we don't want to return
 		// an error.
@@ -125,53 +172,97 @@ func NewDeliveryHandler(out chan *DeliveryReceipt, verifyIPs bool) http.HandlerF
 			return
 		}
 
-		req.ParseForm()
-		// Decode the form data
-		m := new(DeliveryReceipt)
-
-		m.To = req.FormValue("to")
-		m.NetworkCode = req.FormValue("network-code")
-		m.MessageID = req.FormValue("messageId")
-		m.MSISDN = req.FormValue("msisdn")
-		m.Status = req.FormValue("status")
-		m.ErrorCode = req.FormValue("err-code")
-		m.Price = req.FormValue("price")
-		m.ClientReference = req.FormValue("client-ref")
-
-		t, err := url.QueryUnescape(req.FormValue("scts"))
+		receipt, err := ParseDeliveryReceipt(req)
 		if err != nil {
 			http.Error(w, "", http.StatusInternalServerError)
 			return
 		}
-
-		// Convert the timestamp to a time.Time.
-		timestamp, err := time.Parse("0601021504", t)
-		if err != nil {
-			http.Error(w, "", http.StatusInternalServerError)
-			return
-		}
-
-		m.SCTS = timestamp
-
-		t, err = url.QueryUnescape(req.FormValue("message-timestamp"))
-		if err != nil {
-			http.Error(w, "", http.StatusInternalServerError)
-			return
-		}
-
-		// Convert the timestamp to a time.Time.
-		timestamp, err = time.Parse("2006-01-02 15:04:05", t)
-		if err != nil {
-			http.Error(w, "", http.StatusInternalServerError)
-			return
-		}
-
-		m.Timestamp = timestamp
 
 		// Pass it out on the chan
-		out <- m
+		out <- receipt
+	}
+}
+
+func ParseReceivedMessage(req *http.Request) (*ReceivedMessage, error) {
+	err := req.ParseForm()
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse form data: %v", err)
 	}
 
+	// Decode the form data
+	m := new(ReceivedMessage)
+	switch t := req.FormValue("type"); t {
+	case "text":
+		m.Text, err = url.QueryUnescape(req.FormValue("text"))
+		if err != nil {
+			return nil, fmt.Errorf("failed to unescape field 'text': %v", err)
+		}
+		m.Type = TextMessage
+
+	case "unicode":
+		m.Text, err = url.QueryUnescape(req.FormValue("text"))
+		if err != nil {
+			return nil, fmt.Errorf("failed to unescape field 'text': %v", err)
+		}
+		m.Type = UnicodeMessage
+
+	case "binary":
+		// TODO: I have no idea if this data stuff works, as I'm unable to
+		// send data SMS messages.
+		data, err := url.QueryUnescape(req.FormValue("data"))
+		if err != nil {
+			return nil, fmt.Errorf("failed to unescape field 'data': %v", err)
+		}
+		m.Data = []byte(data)
+
+		udh, err := url.QueryUnescape(req.FormValue("udh"))
+		if err != nil {
+			return nil, fmt.Errorf("failed to unescape field 'udh': %v", err)
+		}
+		m.UDH = []byte(udh)
+		m.Type = BinaryMessage
+
+	default:
+		//error
+		return nil, fmt.Errorf("unrecognized message type %s", t)
+	}
+
+	m.To = req.FormValue("to")
+	m.MSISDN = req.FormValue("msisdn")
+	m.NetworkCode = req.FormValue("network-code")
+	m.ID = req.FormValue("messageId")
+
+	m.Keyword = req.FormValue("keyword")
+	t, err := url.QueryUnescape(req.FormValue("message-timestamp"))
+	if err != nil {
+		return nil, fmt.Errorf("failed to unescape field 'message-timestamp': %v", err)
+	}
+
+	// Convert the timestamp to a time.Time.
+	timestamp, err := time.Parse("2006-01-02 15:04:05", t)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse timestamp for field 'message-timestamp': %v", err)
+	}
+
+	m.Timestamp = timestamp
+
+	// TODO: I don't know if this works as I've been unable to send an SMS
+	// message longer than 160 characters that doesn't get concatenated
+	// automatically.
+	if req.FormValue("concat") == "true" {
+		m.Concatenated = true
+		m.Concat.Reference = req.FormValue("concat-ref")
+		m.Concat.Total, err = strconv.Atoi(req.FormValue("concat-total"))
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert field 'concat-total' to int: %v", err)
+		}
+		m.Concat.Part, err = strconv.Atoi(req.FormValue("concat-part"))
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert field 'concat-part' to int: %v", err)
+		}
+	}
+
+	return m, nil
 }
 
 // NewMessageHandler creates a new http.HandlerFunc that can be used to listen
@@ -188,8 +279,6 @@ func NewMessageHandler(out chan *ReceivedMessage, verifyIPs bool) http.HandlerFu
 			}
 		}
 
-		var err error
-
 		// Check if the query is empty. If it is, it's just Nexmo
 		// making sure our service is up, so we don't want to return
 		// an error.
@@ -197,90 +286,13 @@ func NewMessageHandler(out chan *ReceivedMessage, verifyIPs bool) http.HandlerFu
 			return
 		}
 
-		req.ParseForm()
-		// Decode the form data
-		m := new(ReceivedMessage)
-		switch req.FormValue("type") {
-		case "text":
-			m.Text, err = url.QueryUnescape(req.FormValue("text"))
-			if err != nil {
-				http.Error(w, "", http.StatusInternalServerError)
-				return
-			}
-			m.Type = TextMessage
-		case "unicode":
-			m.Text, err = url.QueryUnescape(req.FormValue("text"))
-			if err != nil {
-				http.Error(w, "", http.StatusInternalServerError)
-				return
-			}
-			m.Type = UnicodeMessage
-
-			// TODO: I have no idea if this data stuff works, as I'm unable to
-			// send data SMS messages.
-		case "binary":
-			data, err := url.QueryUnescape(req.FormValue("data"))
-			if err != nil {
-				http.Error(w, "", http.StatusInternalServerError)
-				return
-			}
-			m.Data = []byte(data)
-
-			udh, err := url.QueryUnescape(req.FormValue("udh"))
-			if err != nil {
-				http.Error(w, "", http.StatusInternalServerError)
-				return
-			}
-			m.UDH = []byte(udh)
-			m.Type = BinaryMessage
-
-		default:
-			//error
-			http.Error(w, "", http.StatusInternalServerError)
-			return
-		}
-
-		m.To = req.FormValue("to")
-		m.MSISDN = req.FormValue("msisdn")
-		m.NetworkCode = req.FormValue("network-code")
-		m.ID = req.FormValue("messageId")
-
-		m.Keyword = req.FormValue("keyword")
-		t, err := url.QueryUnescape(req.FormValue("message-timestamp"))
+		message, err := ParseReceivedMessage(req)
 		if err != nil {
 			http.Error(w, "", http.StatusInternalServerError)
 			return
-		}
-
-		// Convert the timestamp to a time.Time.
-		timestamp, err := time.Parse("2006-01-02 15:04:05", t)
-		if err != nil {
-			http.Error(w, "", http.StatusInternalServerError)
-			return
-		}
-
-		m.Timestamp = timestamp
-
-		// TODO: I don't know if this works as I've been unable to send an SMS
-		// message longer than 160 characters that doesn't get concatenated
-		// automatically.
-		if req.FormValue("concat") == "true" {
-			m.Concatenated = true
-			m.Concat.Reference = req.FormValue("concat-ref")
-			m.Concat.Total, err = strconv.Atoi(req.FormValue("concat-total"))
-			if err != nil {
-				http.Error(w, "", http.StatusInternalServerError)
-				return
-			}
-			m.Concat.Part, err = strconv.Atoi(req.FormValue("concat-part"))
-			if err != nil {
-				http.Error(w, "", http.StatusInternalServerError)
-				return
-			}
 		}
 
 		// Pass it out on the chan
-		out <- m
+		out <- message
 	}
-
 }
