@@ -108,7 +108,11 @@ type DeliveryReceipt struct {
 
 // ToString provides string represenstation of struct
 func (dlr *DeliveryReceipt) ToString() string {
-	s, _ := json.Marshal(dlr)
+	s, err := json.Marshal(dlr)
+	if err != nil {
+		log.Printf("Failed to Marshal dlr with error %v, returning empty string", %v)
+		return ""
+	}
 	return string(s)
 }
 
