@@ -114,47 +114,51 @@ func (c ResponseCode) String() string {
 }
 
 // Possible response codes
+// https://developer.nexmo.com/api-errors/sms updated at 2019-08-01
 const (
-	ResponseSuccess ResponseCode = iota
-	ResponseThrottled
-	ResponseMissingParams
-	ResponseInvalidParams
-	ResponseInvalidCredentials
-	ResponseInternalError
-	ResponseInvalidMessage
-	ResponseNumberBarred
-	ResponsePartnerAcctBarred
-	ResponsePartnerQuotaExceeded
-	ResponseUnused //This is not used  yet.Left blank by  Nexmo for the time being.
-	ResponseRESTNotEnabled
-	ResponseMessageTooLong
-	ResponseCommunicationFailed
-	ResponseInvalidSignature
-	ResponseInvalidSenderAddress
-	ResponseInvalidTTL
-	ResponseFacilityNotAllowed
-	ResponseInvalidMessageClass
+	ResponseSuccess                ResponseCode = 0
+	ResponseThrottled              ResponseCode = 1
+	ResponseMissingParams          ResponseCode = 2
+	ResponseInvalidParams          ResponseCode = 3
+	ResponseInvalidCredentials     ResponseCode = 4
+	ResponseInternalError          ResponseCode = 5
+	ResponseInvalidMessage         ResponseCode = 6
+	ResponseNumberBarred           ResponseCode = 7
+	ResponsePartnerAcctBarred      ResponseCode = 8
+	ResponsePartnerQuotaViolation  ResponseCode = 9
+	ResponseTooManyExistBinds      ResponseCode = 10
+	ResponseRESTNotEnabled         ResponseCode = 11
+	ResponseMessageTooLong         ResponseCode = 12
+	ResponseInvalidSignature       ResponseCode = 14
+	ResponseInvalidSenderAddress   ResponseCode = 15
+	ResponseInvalidNetworkCode     ResponseCode = 22
+	ResponseInvalidCallbackUrl     ResponseCode = 23
+	ResponseNonWhitelisted         ResponseCode = 29
+	ResponseSignatureAPIDisallowed ResponseCode = 32
+	ResponseNumberDeactivated      ResponseCode = 33
 )
 
 var responseCodeMap = map[ResponseCode]string{
-	ResponseSuccess:              "Success",
-	ResponseThrottled:            "Throttled",
-	ResponseMissingParams:        "Missing params",
-	ResponseInvalidParams:        "Invalid params",
-	ResponseInvalidCredentials:   "Invalid credentials",
-	ResponseInternalError:        "Internal error",
-	ResponseInvalidMessage:       "Invalid message",
-	ResponseNumberBarred:         "Number barred",
-	ResponsePartnerAcctBarred:    "Partner account barred",
-	ResponsePartnerQuotaExceeded: "Partner quota exceeded",
-	ResponseRESTNotEnabled:       "Account not enabled for REST",
-	ResponseMessageTooLong:       "Message too long",
-	ResponseCommunicationFailed:  "Communication failed",
-	ResponseInvalidSignature:     "Invalid signature",
-	ResponseInvalidSenderAddress: "Invalid sender address",
-	ResponseInvalidTTL:           "Invalid TTL",
-	ResponseFacilityNotAllowed:   "Facility not allowed",
-	ResponseInvalidMessageClass:  "Invalid message class",
+	ResponseSuccess:                "Success",
+	ResponseThrottled:              "Throttled",
+	ResponseMissingParams:          "Missing params",
+	ResponseInvalidParams:          "Invalid params",
+	ResponseInvalidCredentials:     "Invalid credentials",
+	ResponseInternalError:          "Internal error",
+	ResponseInvalidMessage:         "Invalid message",
+	ResponseNumberBarred:           "Number barred",
+	ResponsePartnerAcctBarred:      "Partner account barred",
+	ResponsePartnerQuotaViolation:  "Partner quota violation",
+	ResponseTooManyExistBinds:      "Too many exist binds",
+	ResponseRESTNotEnabled:         "Account not enabled for REST",
+	ResponseMessageTooLong:         "Message too long",
+	ResponseInvalidSignature:       "Invalid signature",
+	ResponseInvalidSenderAddress:   "Invalid sender address",
+	ResponseInvalidNetworkCode:     "Invalid network code",
+	ResponseInvalidCallbackUrl:     "Invalid callback url",
+	ResponseNonWhitelisted:         "Non-whitelisted destination",
+	ResponseSignatureAPIDisallowed: "Signature and api secret disallowed",
+	ResponseNumberDeactivated:      "Number De-activated",
 }
 
 // MessageReport is the "status report" for a single SMS sent via the Nexmo API
