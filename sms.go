@@ -177,6 +177,15 @@ type MessageResponse struct {
 	Messages     []MessageReport `json:"messages"`
 }
 
+type InvalidResponseError struct {
+	Message string
+	Body    []byte
+}
+
+func (e InvalidResponseError) Error() string {
+	return e.Message
+}
+
 // Send the message using the specified SMS client.
 func (c *SMS) Send(msg *SMSMessage) (*MessageResponse, error) {
 	if len(msg.From) <= 0 {
@@ -232,11 +241,20 @@ func (c *SMS) Send(msg *SMSMessage) (*MessageResponse, error) {
 	}
 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, InvalidResponseError{
+			Message: "failed to read response from Nexmo",
+			Body:    body,
+		}
+	}
 
 	err = json.Unmarshal(body, &messageResponse)
 	if err != nil {
-		return nil, err
+		return nil, InvalidResponseError{
+			Message: "failed to unmarshal response from Nexmo",
+			Body:    body,
+		}
 	}
 	return messageResponse, nil
 }
