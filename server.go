@@ -130,9 +130,13 @@ func ParseDeliveryReceipt(req *http.Request) (*DeliveryReceipt, error) {
 	}
 
 	// Convert the timestamp to a time.Time.
-	timestamp, err := time.Parse("0601021504", t)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse timestamp for field 'scts': %v", err)
+	var timestamp time.Time
+	if t != "" {
+		var err error
+		timestamp, err = time.Parse("0601021504", t)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse timestamp for field 'scts': %v", err)
+		}
 	}
 
 	m.SCTS = timestamp
