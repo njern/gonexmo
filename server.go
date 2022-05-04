@@ -124,35 +124,41 @@ func ParseDeliveryReceipt(req *http.Request) (*DeliveryReceipt, error) {
 	m.Price = req.FormValue("price")
 	m.ClientReference = req.FormValue("client-ref")
 
-	t, err := url.QueryUnescape(req.FormValue("scts"))
-	if err != nil {
-		return nil, fmt.Errorf("failed to unescape field 'scts': %v", err)
-	}
-
-	// Convert the timestamp to a time.Time.
-	var timestamp time.Time
-	if t != "" {
-		var err error
-		timestamp, err = time.Parse("0601021504", t)
+	{
+		t, err := url.QueryUnescape(req.FormValue("scts"))
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse timestamp for field 'scts': %v", err)
+			return nil, fmt.Errorf("failed to unescape field 'scts': %v", err)
 		}
+
+		// Convert the timestamp to a time.Time.
+		var timestamp time.Time
+		if t != "" {
+			timestamp, err = time.Parse("0601021504", t)
+			if err != nil {
+				return nil, fmt.Errorf("failed to parse timestamp for field 'scts': %v", err)
+			}
+		}
+
+		m.SCTS = timestamp
 	}
 
-	m.SCTS = timestamp
+	{
+		t, err := url.QueryUnescape(req.FormValue("message-timestamp"))
+		if err != nil {
+			return nil, fmt.Errorf("failed to unescape field 'message-timestamp': %v", err)
+		}
 
-	t, err = url.QueryUnescape(req.FormValue("message-timestamp"))
-	if err != nil {
-		return nil, fmt.Errorf("failed to unescape field 'message-timestamp': %v", err)
+		// Convert the timestamp to a time.Time.
+		var timestamp time.Time
+		if t != "" {
+			timestamp, err = time.Parse("2006-01-02 15:04:05", t)
+			if err != nil {
+				return nil, fmt.Errorf("failed to parse timestamp for field 'message-timestamp': %v", err)
+			}
+		}
+
+		m.Timestamp = timestamp
 	}
-
-	// Convert the timestamp to a time.Time.
-	timestamp, err = time.Parse("2006-01-02 15:04:05", t)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse timestamp for field 'message-timestamp': %v", err)
-	}
-
-	m.Timestamp = timestamp
 
 	return m, nil
 }
