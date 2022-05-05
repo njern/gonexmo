@@ -6,6 +6,8 @@ import (
 )
 
 func testSend(t *testing.T) *VerifyMessageResponse {
+	InitEnv()
+
 	time.Sleep(1 * time.Second) // Sleep 1 second due to API limitation
 	if testPhoneNumber == "" {
 		t.Fatal("no test phone number specified. Please set NEXMO_NUM")

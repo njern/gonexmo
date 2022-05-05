@@ -130,16 +130,10 @@ func ParseDeliveryReceipt(req *http.Request) (*DeliveryReceipt, error) {
 			return nil, fmt.Errorf("failed to unescape field 'scts': %v", err)
 		}
 
-		// Convert the timestamp to a time.Time.
-		var timestamp time.Time
-		if t != "" {
-			timestamp, err = time.Parse("0601021504", t)
-			if err != nil {
-				return nil, fmt.Errorf("failed to parse timestamp for field 'scts': %v", err)
-			}
+		m.SCTS, err = parseSCTS(t)
+		if err != nil {
+			return nil, err
 		}
-
-		m.SCTS = timestamp
 	}
 
 	{
@@ -148,19 +142,49 @@ func ParseDeliveryReceipt(req *http.Request) (*DeliveryReceipt, error) {
 			return nil, fmt.Errorf("failed to unescape field 'message-timestamp': %v", err)
 		}
 
-		// Convert the timestamp to a time.Time.
-		var timestamp time.Time
-		if t != "" {
-			timestamp, err = time.Parse("2006-01-02 15:04:05", t)
-			if err != nil {
-				return nil, fmt.Errorf("failed to parse timestamp for field 'message-timestamp': %v", err)
-			}
+		m.Timestamp, err = parseMessageTimestamp(t)
+		if err != nil {
+			return nil, err
 		}
-
-		m.Timestamp = timestamp
 	}
 
 	return m, nil
+}
+
+func parseSCTS(t string) (time.Time, error) {
+	if t == "" {
+		return time.Time{}, nil
+	}
+
+	timestamp, err := time.Parse("0601021504", t)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("failed to parse timestamp for field 'scts': %v", err)
+	}
+
+	return timestamp, nil
+}
+
+func parseMessageTimestamp(t string) (time.Time, error) {
+	if t == "" {
+		return time.Time{}, nil
+	}
+
+	// nexmo is just doing some crazy stuff lately
+	formats := []string{
+		"2006-01-02 15:04:05 -0700", // actually valid
+		"2006-01-02 15:04:05 0000",  // where did the plus go
+		"2006-01-02 15:04:05  0000", // oh you forgot to URL encode it? very cool
+		"2006-01-02 15:04:05",       // you know what, forget timezones
+	}
+
+	for _, f := range formats {
+		timestamp, err := time.Parse(f, t)
+		if err == nil {
+			return timestamp, nil
+		}
+	}
+
+	return time.Time{}, fmt.Errorf("failed to parse timestamp '%s' for field 'message-timestamp'", t)
 }
 
 // NewDeliveryHandler creates a new http.HandlerFunc that can be used to listen

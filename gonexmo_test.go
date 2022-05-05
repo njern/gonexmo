@@ -13,7 +13,7 @@ var (
 	testFrom        string
 )
 
-func init() {
+func InitEnv() {
 	testAPIKey = os.Getenv("NEXMO_KEY")
 	if testAPIKey == "" {
 		fmt.Println("No API key specified. Please set NEXMO_KEY")
@@ -38,6 +38,7 @@ func init() {
 }
 
 func TestNexmoCreation(t *testing.T) {
+	InitEnv()
 	_, err := NewClient(testAPIKey, testAPISecret)
 	if err != nil {
 		t.Error("failed to create Client with error:", err)
