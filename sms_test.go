@@ -1,3 +1,4 @@
+//go:build messages
 // +build messages
 
 // Tests in this file will only be run if the build tag messages is set:
@@ -17,6 +18,8 @@ import (
 // TODO(inhies): Only create a Client once in an init() function.
 
 func TestSendTextMessage(t *testing.T) {
+	InitEnv()
+
 	// TODO(inhies): Create an internal rate limiting system and do away with
 	// this hacky 1 second delay.
 	time.Sleep(1 * time.Second) // Sleep 1 second due to API limitation
@@ -46,6 +49,8 @@ func TestSendTextMessage(t *testing.T) {
 }
 
 func TestFlashMessage(t *testing.T) {
+	InitEnv()
+
 	time.Sleep(1 * time.Second) // Sleep 1 second due to API limitation
 	if TEST_PHONE_NUMBER == "" {
 		t.Fatal("No test phone number specified. Please set NEXMO_NUM")

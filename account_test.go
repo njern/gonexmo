@@ -5,6 +5,8 @@ import (
 )
 
 func TestGetAccountBalance(t *testing.T) {
+	InitEnv()
+
 	client, err := NewClient(testAPIKey, testAPISecret)
 	if err != nil {
 		t.Error("Failed to create Client with error:", err)

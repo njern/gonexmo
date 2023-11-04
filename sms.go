@@ -2,10 +2,13 @@ package nexmo
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/http/httptrace"
 )
 
 // SMS represents the SMS API functions for sending text messages.
@@ -24,10 +27,10 @@ const (
 )
 
 // MessageClass will be one of the following:
-//	- Flash
-//	- Standard
-//	- SIMData
-//	- Forward
+//   - Flash
+//   - Standard
+//   - SIMData
+//   - Forward
 type MessageClass int
 
 // SMS message classes.
@@ -177,6 +180,27 @@ type MessageResponse struct {
 	Messages     []MessageReport `json:"messages"`
 }
 
+type InvalidResponseError struct {
+	Message string
+	Err     error
+	Body    []byte
+}
+
+type SendConnectionError struct {
+	Message string
+	Err     error
+	Body    []byte
+	Debug   []string
+}
+
+func (e SendConnectionError) Error() string {
+	return e.Message
+}
+
+func (e InvalidResponseError) Error() string {
+	return e.Message
+}
+
 // Send the message using the specified SMS client.
 func (c *SMS) Send(msg *SMSMessage) (*MessageResponse, error) {
 	if len(msg.From) <= 0 {
@@ -215,6 +239,7 @@ func (c *SMS) Send(msg *SMSMessage) (*MessageResponse, error) {
 	}
 
 	var r *http.Request
+
 	buf, err := json.Marshal(msg)
 	if err != nil {
 		return nil, errors.New("invalid message struct - unable to convert to JSON")
@@ -225,18 +250,108 @@ func (c *SMS) Send(msg *SMSMessage) (*MessageResponse, error) {
 	r.Header.Add("Accept", "application/json")
 	r.Header.Add("Content-Type", "application/json")
 
+	debug, trace := getRequestTrace()
+	r = r.WithContext(httptrace.WithClientTrace(r.Context(), trace))
+
 	resp, err := c.client.HTTPClient.Do(r)
 
 	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
+		sendErr := SendConnectionError{
+			Message: "nexmo http send failed",
+			Err:     err,
+			Debug:   *debug,
+		}
 
-	body, _ := ioutil.ReadAll(resp.Body)
+		if resp != nil && resp.Body != nil {
+			defer resp.Body.Close()
+			body, bodyErr := ioutil.ReadAll(resp.Body)
+			if bodyErr != nil {
+				sendErr.Body = body
+			}
+		}
+
+		return nil, sendErr
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, InvalidResponseError{
+			Message: "failed to read response from Nexmo",
+			Body:    body,
+			Err:     err,
+		}
+	}
 
 	err = json.Unmarshal(body, &messageResponse)
 	if err != nil {
-		return nil, err
+		return nil, InvalidResponseError{
+			Message: "failed to unmarshal response from Nexmo",
+			Body:    body,
+			Err:     err,
+		}
 	}
+
 	return messageResponse, nil
+}
+
+func getRequestTrace() (*[]string, *httptrace.ClientTrace) {
+
+	debugTrace := &[]string{}
+
+	return debugTrace, &httptrace.ClientTrace{
+		GetConn: func(hostPort string) {
+			*debugTrace = append(*debugTrace, fmt.Sprintf("Initiating connecting to %s", hostPort))
+		},
+		GotConn: func(connInfo httptrace.GotConnInfo) {
+			if connInfo.Reused {
+				*debugTrace = append(*debugTrace, "Re-using existing connection")
+			} else {
+				*debugTrace = append(*debugTrace, "New connection successfully established")
+			}
+		},
+		DNSStart: func(dnsInfo httptrace.DNSStartInfo) {
+			*debugTrace = append(*debugTrace, fmt.Sprintf("Resolving DNS for %s", dnsInfo.Host))
+		},
+		DNSDone: func(dnsInfo httptrace.DNSDoneInfo) {
+			if dnsInfo.Err != nil {
+				*debugTrace = append(*debugTrace, fmt.Sprintf("Error resolving DNS (%s)", dnsInfo.Err.Error()))
+			} else {
+				*debugTrace = append(*debugTrace, "DNS resolved successfully")
+			}
+		},
+		ConnectStart: func(network string, addr string) {
+			*debugTrace = append(*debugTrace, fmt.Sprintf("Initiating connecting to %s %s", network, addr))
+		},
+		ConnectDone: func(network string, addr string, err error) {
+			if err != nil {
+				*debugTrace = append(*debugTrace, fmt.Sprintf("Error connecting to %s %s (%s)", network, addr, err.Error()))
+			} else {
+				*debugTrace = append(*debugTrace, fmt.Sprintf("Connection complete to %s %s", network, addr))
+			}
+		},
+		GotFirstResponseByte: func() {
+			*debugTrace = append(*debugTrace, "Read first byte of response headers")
+		},
+		TLSHandshakeStart: func() {
+			*debugTrace = append(*debugTrace, "TLS handshake started")
+		},
+		TLSHandshakeDone: func(state tls.ConnectionState, err error) {
+			if err != nil {
+				*debugTrace = append(*debugTrace, fmt.Sprintf("TLS handshake error (%s)", err.Error()))
+			} else {
+				*debugTrace = append(*debugTrace, "TLS handshake complete")
+			}
+		},
+		WroteHeaders: func() {
+			*debugTrace = append(*debugTrace, "Request headers successfully written")
+		},
+		WroteRequest: func(requestInfo httptrace.WroteRequestInfo) {
+			if requestInfo.Err != nil {
+				*debugTrace = append(*debugTrace, fmt.Sprintf("Error while writing http request (%s)", requestInfo.Err.Error()))
+			} else {
+				*debugTrace = append(*debugTrace, "Full request successfully written")
+			}
+		},
+	}
 }
